@@ -26,10 +26,6 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const HomeScreen(),
         '/home': (context) => const HomeScreen(),
-
-        // --- ROUTE TAMBAHAN ---
-        // Nanti kalau kamu sudah punya file terpisah,
-        // tinggal ganti widget di sini ke widget screen-mu sendiri.
         '/products': (context) => const ProductsScreen(),
         '/cart': (context) => const CartScreen(),
         '/profile': (context) => const ProfileScreen(),
@@ -47,11 +43,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-/// =======================
-/// DUMMY SCREEN SEMENTARA
-/// (BIAR APP JALAN DULU)
-/// =======================
 
 class ProductsScreen extends StatelessWidget {
   const ProductsScreen({super.key});

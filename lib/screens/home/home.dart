@@ -562,7 +562,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       color: Colors.white,
                                       child: Image.asset(
                                         product['image']!,
-                                        fit: BoxFit.cover,
+                                        fit: BoxFit.contain,
                                         errorBuilder: (context, error,
                                             stackTrace) {
                                           return const Center(
