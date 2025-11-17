@@ -175,12 +175,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-                      child: TextField(
-                        style: const TextStyle(
+                      child: const TextField(
+                        style: TextStyle(
                           fontSize: 13,
                           color: Colors.black87,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           prefixIcon: Icon(
                             Icons.search,
                             color: Colors.black87,
@@ -204,29 +204,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(width: 10),
 
-                  // PROFILE ICON – lingkaran putih + border orange
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: orange, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: orange,
-                      size: 20,
+                  // PROFILE ICON
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/profile');
+                    },
+                    child: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: orange, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.person_outline,
+                        color: orange,
+                        size: 20,
+                      ),
                     ),
                   ),
 
                   const SizedBox(width: 10),
 
-                  // CART ICON – icon orange biasa (tanpa lingkaran putih)
-                  const Icon(
-                    Icons.shopping_cart_outlined,
-                    color: orange,
-                    size: 26,
+                  // CART ICON
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/cart');
+                    },
+                    child: const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: orange,
+                      size: 26,
+                    ),
                   ),
                 ],
               ),
@@ -386,21 +396,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Colors.black87,
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF545454),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text(
-                              'Lihat Lain',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, '/brands');
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF545454),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'Lihat Lain',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
@@ -418,6 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: _brands.map((brand) {
                           return GestureDetector(
                             onTap: () {
+                              // nanti bisa diarahkan ke halaman brand tertentu
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('${brand['name']} diklik'),
@@ -507,6 +523,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           final product = _products[index];
                           return GestureDetector(
                             onTap: () {
+                              // bisa diarahkan ke detail produk nanti
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('${product['name']} diklik'),
@@ -690,15 +707,20 @@ class _HomeScreenState extends State<HomeScreen> {
               setState(() {
                 _selectedBottomNavIndex = index;
               });
-              final items = ['Home', 'Produk', 'Keranjang', 'Profile'];
-              if (index != 0) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${items[index]} diklik'),
-                    duration: const Duration(seconds: 1),
-                    backgroundColor: darkBar,
-                  ),
-                );
+
+              switch (index) {
+                case 0: // Home
+                  Navigator.pushReplacementNamed(context, '/');
+                  break;
+                case 1: // Produk
+                  Navigator.pushNamed(context, '/products');
+                  break;
+                case 2: // Keranjang
+                  Navigator.pushNamed(context, '/cart');
+                  break;
+                case 3: // Profile
+                  Navigator.pushNamed(context, '/profile');
+                  break;
               }
             },
             items: const [
