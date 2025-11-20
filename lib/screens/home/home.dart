@@ -55,13 +55,13 @@ class _HomeScreenState extends State<HomeScreen> {
       'image': 'assets/images/products/iphone_15.jpg',
     },
     {
-      'name': 'Samsung Galaxy A07',
+      'name': 'Samsung Galaxy S20',
       'price': 'Rp 1.399.000',
       'discountPrice': '',
       'image': 'assets/images/products/samsung_s20.jpg',
     },
     {
-      'name': 'Xiaomi Redmi Pad 2',
+      'name': 'Xiaomi Redmi Note 13',
       'price': 'Rp 1.999.000',
       'discountPrice': '',
       'image': 'assets/images/products/redmi_note_13.jpg',

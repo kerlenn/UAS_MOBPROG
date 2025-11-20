@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/home/home.dart';
+import 'screens/products/products_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,18 +41,6 @@ class MyApp extends StatelessWidget {
           builder: (context) => const HomeScreen(),
         );
       },
-    );
-  }
-}
-
-class ProductsScreen extends StatelessWidget {
-  const ProductsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Produk')),
-      body: const Center(child: Text('Halaman Produk')),
     );
   }
 }
