@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// Import intl dihapus karena tidak dipakai
+import '../product_detail/product_detail_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -9,7 +9,7 @@ class ProductsScreen extends StatefulWidget {
 }
 
 class _ProductsScreenState extends State<ProductsScreen> {
-  int _selectedBottomNavIndex = 1; // Sekarang variable ini akan terpakai di bawah
+  int _selectedBottomNavIndex = 1;
 
   // ==================== STATE FILTER ====================
   // 1. Sort State
@@ -31,6 +31,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/iphone_17_pro_max.jpg',
       'brand': 'Apple',
       'colors': [Color(0xFFE36B37), Color(0xFF1C2739), Color(0xFFE3E3E1)],
+      'storage': ['256 GB', '512 GB', '1 TB', '2 TB'],
+      // TAMBAHAN DESKRIPSI KHUSUS IPHONE 17
+      'description': 'iPhone 17 Pro Max. iPhone paling andal yang pernah ada. Layar 6,9 inci yang cemerlang, desain unibody aluminium, chip A19 Pro, semua kamera belakang 48 MP, dan kekuatan baterai terbaik.',
     },
     {
       'name': 'Apple iPhone 15',
@@ -38,6 +41,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/iphone_15.jpg',
       'brand': 'Apple',
       'colors': [Color(0xFF363738), Color(0xFFDBE4EA), Color(0xFFFCE3E5)],
+      'storage': ['128 GB', '256 GB', '512 GB'],
+      // TAMBAHAN DESKRIPSI KHUSUS IPHONE 15
+      'description': 'iPhone 15 menghadirkan Dynamic Island, kamera utama 48 MP, dan USB-C. Desain tahan air dan debu yang tangguh dengan aluminium sekelas dirgantara.',
     },
     {
       'name': 'Apple iPhone 13',
@@ -45,6 +51,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/iphone_13.jpg',
       'brand': 'Apple',
       'colors': [Color(0xFF1F2020), Color(0xFFF9F6EF)],
+      'storage': ['128 GB', '256 GB'],
+      // TAMBAHAN DESKRIPSI KHUSUS IPHONE 13
+      'description': 'Sistem kamera ganda paling canggih yang pernah ada di iPhone. Chip A15 Bionic yang secepat kilat. Lompatan besar dalam kekuatan baterai. Desain kokoh.',
     },
     {
       'name': 'Xiaomi Redmi Note 13',
@@ -52,6 +61,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/redmi_note_13.jpg',
       'brand': 'Xiaomi',
       'colors': [Color(0xFFE6C8B6), Color(0xFFC0DCE9)],
+      'storage': ['128 GB', '256 GB'],
+      'description': 'Redmi Note 13 hadir dengan layar AMOLED 120Hz yang memukau, kamera utama 108MP ultra-jernih, dan performa Snapdragon yang andal untuk multitasking.',
     },
     {
       'name': 'Samsung Galaxy S25',
@@ -59,6 +70,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/samsung_s25.jpg',
       'brand': 'Samsung',
       'colors': [Color(0xFF1F2A44), Color(0xFFDAE5EB)],
+      'storage': ['256 GB', '512 GB'],
+      'description': 'Galaxy S25 dengan layar Dynamic AMOLED 2X 120Hz, kamera belakang canggih, dan baterai tahan lama yang mendukung pengisian cepat serta nirkabel.',
     },
     {
       'name': 'Google Pixel 9 Pro',
@@ -66,6 +79,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/pixel_9.jpg',
       'brand': 'Google',
       'colors': [Color(0xFFF5F5F5), Color(0xFF3C4043)],
+      'storage': ['128 GB', '256 GB', '512 GB'],
+      'description': 'Pixel 9 Pro dengan kamera canggih, layar LTPO OLED 120Hz, dan chip Tensor G3 untuk performa optimal serta fitur AI terbaru dari Google.',
     },
     {
       'name': 'Huawei Pura 80',
@@ -73,10 +88,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/huawei_pura.jpg',
       'brand': 'Huawei',
       'colors': [Color(0xFF000000), Color(0xFF6B4E3D)],
+      'storage': ['256 GB', '512 GB'],
+      'description': 'Huawei Pura 80 dengan layar OLED 90Hz, kamera belakang ganda 50MP, dan baterai tahan lama yang mendukung pengisian cepat 22.5W.',
     },
   ];
 
-  // Helper format rupiah manual (Tanpa library intl)
   String formatCurrency(int amount) {
     final str = amount.toString().replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.');
@@ -220,7 +236,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
       context: context,
       builder: (context) {
         RangeValues tempRange = _selectedPriceRange;
-        // Variabel tempIsActive dihapus karena tidak digunakan logic-nya di sini
 
         return StatefulBuilder(
           builder: (context, setStateDialog) {
@@ -454,7 +469,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
         ),
       ),
       
-      // BOTTOM NAV (Diaktifkan kembali agar variable _selectedBottomNavIndex terpakai)
+      // BOTTOM NAV
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: darkBar,
@@ -466,7 +481,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             backgroundColor: Colors.transparent,
             selectedItemColor: orange,
             unselectedItemColor: Colors.white,
-            currentIndex: _selectedBottomNavIndex, // DISINI variable tersebut terpakai
+            currentIndex: _selectedBottomNavIndex,
             type: BottomNavigationBarType.fixed,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -517,51 +532,65 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   Widget _buildProductCard(Map<String, dynamic> product) {
     List<Color> colors = product['colors'] as List<Color>;
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 8, offset: const Offset(2, 4))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Center(
-                child: Image.asset(product['image'], fit: BoxFit.contain,
-                    errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.grey)),
+    return GestureDetector(
+      onTap: () {
+        // Navigasi ke Halaman Detail dengan membawa data product
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(product: product),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 8, offset: const Offset(2, 4))
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Center(
+                  child: Hero(
+                    tag: product['name'], 
+                    child: Image.asset(product['image'], fit: BoxFit.contain,
+                        errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.grey)),
+                  ),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(product['name'], maxLines: 2, overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black)),
-                const SizedBox(height: 6),
-                Text(formatCurrency(product['price']),
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black)),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(children: colors.take(3).map((c) => Container(
-                      margin: const EdgeInsets.only(right: 4), width: 12, height: 12,
-                      decoration: BoxDecoration(color: c, shape: BoxShape.circle, border: Border.all(color: Colors.grey.shade300)),
-                    )).toList()),
-                    const Icon(Icons.shopping_cart_outlined, size: 20),
-                  ],
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(product['name'], maxLines: 2, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black)),
+                  const SizedBox(height: 6),
+                  Text(formatCurrency(product['price']),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black)),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(children: colors.take(3).map((c) => Container(
+                        margin: const EdgeInsets.only(right: 4), width: 12, height: 12,
+                        decoration: BoxDecoration(color: c, shape: BoxShape.circle, border: Border.all(color: Colors.grey.shade300)),
+                      )).toList()),
+                      const Icon(Icons.shopping_cart_outlined, size: 20),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
