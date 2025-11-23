@@ -39,7 +39,6 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
               Text("Bebas Ongkir  |  Stok Tersedia", style: TextStyle(color: Colors.green, fontSize: 12)),
               
               SizedBox(height: 16),
-              // GAMBAR PRODUK (Placeholder kotak abu)
               Container(
                 height: 300,
                 width: double.infinity,
@@ -49,12 +48,11 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
                   border: Border.all(color: Colors.grey.shade300)
                 ),
                 child: Padding(
-                padding: EdgeInsets.all(20), // Biar ada jarak dikit
-                child: Image.asset("assets/images/iphone.png", fit: BoxFit.contain),
+                padding: EdgeInsets.all(20), 
+                child: Image.asset("assets/images/ipon.png", fit: BoxFit.contain),
                 ),
               ),
               
-              // THUMBNAIL GAMBAR KECIL
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -70,7 +68,6 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
               Text("Rp25.749.000", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               
               SizedBox(height: 16),
-              // PILIHAN WARNA
               Text("Warna - $selectedColor", style: TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               Row(
@@ -82,7 +79,6 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
               ),
 
               SizedBox(height: 16),
-              // KAPASITAS MEMORI
               Text("Kapasitas", style: TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               Wrap(
@@ -119,13 +115,12 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
                   style: TextStyle(fontSize: 12),
                 ),
               ),
-              SizedBox(height: 80), // Space agar tidak tertutup tombol bawah
+              SizedBox(height: 80),
             ],
           ),
         ),
       ),
       
-      // TOMBOL BELI DI BAWAH
       bottomNavigationBar: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(blurRadius: 5, color: Colors.black12)]),
