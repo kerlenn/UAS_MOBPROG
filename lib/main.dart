@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/home/home.dart';
 import 'screens/products/products_screen.dart';
+import 'screens/profile/profile_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,9 +38,7 @@ class MyApp extends StatelessWidget {
 
       // Fallback kalau nama route salah
       onUnknownRoute: (settings) {
-        return MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        );
+        return MaterialPageRoute(builder: (context) => const HomeScreen());
       },
     );
   }
@@ -57,17 +56,17 @@ class CartScreen extends StatelessWidget {
   }
 }
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+// class ProfileScreen extends StatelessWidget {
+//   const ProfileScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: const Center(child: Text('Halaman Profile')),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: const Text('Profile')),
+//       body: const Center(child: Text('Halaman Profile')),
+//     );
+//   }
+// }
 
 class BrandsScreen extends StatelessWidget {
   const BrandsScreen({super.key});

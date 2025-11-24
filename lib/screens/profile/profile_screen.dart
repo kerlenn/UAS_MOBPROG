@@ -20,6 +20,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Controller untuk feedback
   final TextEditingController _feedbackController = TextEditingController();
 
+  // Controllers untuk form Ubah Kata Sandi
+  final TextEditingController _passwordLamaController = TextEditingController();
+  final TextEditingController _passwordBaruController = TextEditingController();
+  final TextEditingController _konfirmasiPasswordController = TextEditingController();
+
+  // State untuk show/hide password
+  bool _showPasswordLama = false;
+  bool _showPasswordBaru = false;
+  bool _showKonfirmasiPassword = false;
+
   @override
   void dispose() {
     _namaController.dispose();
@@ -28,10 +38,209 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nomorTeleponController.dispose();
     _emailController.dispose();
     _feedbackController.dispose();
+    _passwordLamaController.dispose();
+    _passwordBaruController.dispose();
+    _konfirmasiPasswordController.dispose();
     super.dispose();
   }
 
   // ==================== DIALOGS ====================
+
+  void _showUbahKataSandiDialog() {
+    // Reset controllers
+    _passwordLamaController.clear();
+    _passwordBaruController.clear();
+    _konfirmasiPasswordController.clear();
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFFB8724D), Color(0xFF6B3E2E)],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Header dengan logo dan tombol back
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: const CircleAvatar(
+                                backgroundColor: Color(0xFFFF6B35),
+                                radius: 18,
+                                child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                              ),
+                            ),
+                            Image.asset(
+                              'assets/images/logo.png',
+                              height: 40,
+                              errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 40),
+                            ),
+                            const SizedBox(width: 36),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Avatar dengan icon lock
+                        const CircleAvatar(
+                          radius: 40,
+                          backgroundColor: Colors.white,
+                          child: Icon(Icons.lock, size: 50, color: Color(0xFFB8724D)),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Title
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.lock, color: Color(0xFFB8724D), size: 18),
+                              SizedBox(width: 8),
+                              Text(
+                                'Ubah Kata Sandi',
+                                style: TextStyle(
+                                  color: Color(0xFFB8724D),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Form Fields untuk Password
+                        _buildPasswordField(
+                          'Kata Sandi Lama',
+                          _passwordLamaController,
+                          _showPasswordLama,
+                          () {
+                            setStateDialog(() {
+                              _showPasswordLama = !_showPasswordLama;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        _buildPasswordField(
+                          'Kata Sandi Baru',
+                          _passwordBaruController,
+                          _showPasswordBaru,
+                          () {
+                            setStateDialog(() {
+                              _showPasswordBaru = !_showPasswordBaru;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        _buildPasswordField(
+                          'Konfirmasi Kata Sandi Baru',
+                          _konfirmasiPasswordController,
+                          _showKonfirmasiPassword,
+                          () {
+                            setStateDialog(() {
+                              _showKonfirmasiPassword = !_showKonfirmasiPassword;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Buttons
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF6B35),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            onPressed: () {
+                              // Validasi
+                              if (_passwordLamaController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Kata sandi lama harus diisi')),
+                                );
+                                return;
+                              }
+                              if (_passwordBaruController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Kata sandi baru harus diisi')),
+                                );
+                                return;
+                              }
+                              if (_passwordBaruController.text != _konfirmasiPasswordController.text) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Konfirmasi kata sandi tidak cocok')),
+                                );
+                                return;
+                              }
+                              if (_passwordBaruController.text.length < 6) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Kata sandi minimal 6 karakter')),
+                                );
+                                return;
+                              }
+
+                              // Logic simpan kata sandi baru
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Kata sandi berhasil diubah')),
+                              );
+                            },
+                            child: const Text('Simpan Perubahan', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFE53935),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   void _showUbahProfilDialog() {
     showDialog(
@@ -171,6 +380,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildPasswordField(String label, TextEditingController controller, bool showPassword, VoidCallback toggleShow) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFFFFDDCC),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFE8E8E8),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: !showPassword,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  showPassword ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.grey,
+                  size: 20,
+                ),
+                onPressed: toggleShow,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildProfileField(String label, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,12 +497,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildMenuButton(
                     icon: Icons.lock,
                     label: 'Ubah Kata Sandi',
-                    onTap: () {
-                      // Navigate to change password
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Fitur Ubah Kata Sandi')),
-                      );
-                    },
+                    onTap: _showUbahKataSandiDialog,
                   ),
                   const SizedBox(height: 12),
                   _buildMenuButton(
@@ -272,7 +515,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.shopping_cart,
                     label: 'Keranjang Saya',
                     onTap: () {
-                      Navigator.pushReplacementNamed(context, '/keranjang');
+                      Navigator.pushReplacementNamed(context, '/cart');
                     },
                   ),
                   const SizedBox(height: 30),
@@ -381,7 +624,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               } else if (index == 1) {
                 Navigator.pushReplacementNamed(context, '/products');
               } else if (index == 2) {
-                Navigator.pushReplacementNamed(context, '/keranjang');
+                Navigator.pushReplacementNamed(context, '/cart');
               }
             },
           ),
