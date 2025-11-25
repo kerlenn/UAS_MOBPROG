@@ -220,7 +220,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         // Username Field
                         TextFormField(
                           controller: _usernameController,
-                          style: const TextStyle(fontSize: 14),
+                          style: const TextStyle(fontSize: 14, color: Colors.black,),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
@@ -260,7 +260,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          style: const TextStyle(fontSize: 14),
+                          style: const TextStyle(fontSize: 14, color: Colors.black,),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
@@ -300,7 +300,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         TextFormField(
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
-                          style: const TextStyle(fontSize: 14),
+                          style: const TextStyle(fontSize: 14, color: Colors.black,),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
@@ -340,7 +340,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         TextFormField(
                           controller: _passwordController,
                           obscureText: !_isPasswordVisible,
-                          style: const TextStyle(fontSize: 14),
+                          style: const TextStyle(fontSize: 14, color: Colors.black,),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
@@ -394,7 +394,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: !_isConfirmPasswordVisible,
-                          style: const TextStyle(fontSize: 14),
+                          style: const TextStyle(fontSize: 14, color: Colors.black,),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
