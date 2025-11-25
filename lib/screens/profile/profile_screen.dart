@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,6 +33,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _showKonfirmasiPassword = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Load data user saat pertama kali masuk
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserData();
+    });
+  }
+
+  void _loadUserData() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    
+    if (user != null) {
+      _namaController.text = user.username;
+      _emailController.text = user.email;
+      _nomorTeleponController.text = user.phone;
+    }
+  }
+
+  @override
   void dispose() {
     _namaController.dispose();
     _jenisKelaminController.dispose();
@@ -44,6 +66,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
+  // ==================== LOGOUT FUNCTION ====================
+  void _handleLogout() {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFE53935),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              final success = await authProvider.logout();
+              
+              if (!mounted) return;
+              
+              Navigator.pop(context); // Tutup dialog
+              
+              if (success) {
+                // Redirect ke home setelah logout
+                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Berhasil logout'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            child: const Text('Logout'),
+          ),
+        ],
+      );
+    },
+  );
+}
   // ==================== DIALOGS ====================
 
   void _showUbahKataSandiDialog() {
@@ -203,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 return;
                               }
 
-                              // Logic simpan kata sandi baru
+                              // Logic simpan kata sandi baru (nanti connect ke API)
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Kata sandi berhasil diubah')),
@@ -280,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           height: 40,
                           errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 40),
                         ),
-                        const SizedBox(width: 36), // Spacer untuk balance
+                        const SizedBox(width: 36),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -343,7 +410,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         onPressed: () {
-                          // Logic simpan perubahan
+                          // Logic simpan perubahan (nanti connect ke API)
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Profil berhasil diperbarui')),
@@ -456,180 +523,222 @@ class _ProfileScreenState extends State<ProfileScreen> {
     const brownGradientStart = Color(0xFFB8724D);
     const brownGradientEnd = Color(0xFF6B3E2E);
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [brownGradientStart, brownGradientEnd],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  // Logo Header
-                  Image.asset(
-                    'assets/images/logo.png',
-                    height: 50,
-                    errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 50),
-                  ),
-                  const SizedBox(height: 30),
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        final user = authProvider.user;
 
-                  // Avatar
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person, size: 60, color: Color(0xFFB8724D)),
-                  ),
-                  const SizedBox(height: 30),
+        return Scaffold(
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [brownGradientStart, brownGradientEnd],
+              ),
+            ),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      // Logo Header
+                      Image.asset(
+                        'assets/images/logo.png',
+                        height: 50,
+                        errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 50),
+                      ),
+                      const SizedBox(height: 30),
 
-                  // Menu Buttons
-                  _buildMenuButton(
-                    icon: Icons.edit,
-                    label: 'Ubah Profil',
-                    onTap: _showUbahProfilDialog,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuButton(
-                    icon: Icons.lock,
-                    label: 'Ubah Kata Sandi',
-                    onTap: _showUbahKataSandiDialog,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuButton(
-                    icon: Icons.receipt_long,
-                    label: 'Pesanan Saya',
-                    onTap: () {
-                      // Navigate to orders
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Fitur Pesanan Saya')),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuButton(
-                    icon: Icons.shopping_cart,
-                    label: 'Keranjang Saya',
-                    onTap: () {
-                      Navigator.pushReplacementNamed(context, '/cart');
-                    },
-                  ),
-                  const SizedBox(height: 30),
+                      // Avatar
+                      const CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person, size: 60, color: Color(0xFFB8724D)),
+                      ),
+                      const SizedBox(height: 16),
 
-                  // Feedback Section
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Berikan Feedback',
-                          style: TextStyle(
+                      // Display User Info
+                      if (user != null) ...[
+                        Text(
+                          user.username,
+                          style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextField(
-                            controller: _feedbackController,
-                            maxLines: 4,
-                            decoration: const InputDecoration(
-                              hintText: 'Isi feedback Anda',
-                              hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(12),
-                            ),
+                        const SizedBox(height: 4),
+                        Text(
+                          user.email,
+                          style: const TextStyle(
+                            color: Color(0xFFFFDDCC),
+                            fontSize: 14,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: orange,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            onPressed: () {
-                              if (_feedbackController.text.isNotEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Terima kasih atas feedback Anda!')),
-                                );
-                                _feedbackController.clear();
-                              }
-                            },
-                            child: const Text('Kirim', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text(
+                          user.phone,
+                          style: const TextStyle(
+                            color: Color(0xFFFFDDCC),
+                            fontSize: 14,
                           ),
                         ),
                       ],
-                    ),
+                      const SizedBox(height: 30),
+
+                      // Menu Buttons
+                      _buildMenuButton(
+                        icon: Icons.edit,
+                        label: 'Ubah Profil',
+                        onTap: _showUbahProfilDialog,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildMenuButton(
+                        icon: Icons.lock,
+                        label: 'Ubah Kata Sandi',
+                        onTap: _showUbahKataSandiDialog,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildMenuButton(
+                        icon: Icons.receipt_long,
+                        label: 'Pesanan Saya',
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Fitur Pesanan Saya')),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildMenuButton(
+                        icon: Icons.shopping_cart,
+                        label: 'Keranjang Saya',
+                        onTap: () {
+                          Navigator.pushReplacementNamed(context, '/cart');
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      // TOMBOL LOGOUT BARU
+                      _buildMenuButton(
+                        icon: Icons.logout,
+                        label: 'Logout',
+                        onTap: _handleLogout,
+                        isLogout: true,
+                      ),
+                      const SizedBox(height: 30),
+
+                      // Feedback Section
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Berikan Feedback',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: TextField(
+                                controller: _feedbackController,
+                                maxLines: 4,
+                                decoration: const InputDecoration(
+                                  hintText: 'Isi feedback Anda',
+                                  hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.all(12),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: orange,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  if (_feedbackController.text.isNotEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Terima kasih atas feedback Anda!')),
+                                    );
+                                    _feedbackController.clear();
+                                  }
+                                },
+                                child: const Text('Kirim', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
 
-      // BOTTOM NAV
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: darkBar,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: BottomNavigationBar(
-            backgroundColor: Colors.transparent,
-            selectedItemColor: orange,
-            unselectedItemColor: Colors.white,
-            currentIndex: _selectedBottomNavIndex,
-            type: BottomNavigationBarType.fixed,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(icon: Icon(Icons.people_alt_rounded), label: 'Produk'),
-              BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Keranjang'),
-              BottomNavigationBarItem(
-                icon: CircleAvatar(
-                  radius: 14,
-                  backgroundColor: orange,
-                  child: Icon(Icons.person, size: 18, color: Colors.white),
-                ),
-                label: 'Profile',
+          // BOTTOM NAV
+          bottomNavigationBar: Container(
+            decoration: const BoxDecoration(
+              color: darkBar,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              child: BottomNavigationBar(
+                backgroundColor: Colors.transparent,
+                selectedItemColor: orange,
+                unselectedItemColor: Colors.white,
+                currentIndex: _selectedBottomNavIndex,
+                type: BottomNavigationBarType.fixed,
+                items: const [
+                  BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+                  BottomNavigationBarItem(icon: Icon(Icons.people_alt_rounded), label: 'Produk'),
+                  BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Keranjang'),
+                  BottomNavigationBarItem(
+                    icon: CircleAvatar(
+                      radius: 14,
+                      backgroundColor: orange,
+                      child: Icon(Icons.person, size: 18, color: Colors.white),
+                    ),
+                    label: 'Profile',
+                  ),
+                ],
+                onTap: (index) {
+                  setState(() {
+                    _selectedBottomNavIndex = index;
+                  });
+                  if (index == 0) {
+                    Navigator.pushReplacementNamed(context, '/home');
+                  } else if (index == 1) {
+                    Navigator.pushReplacementNamed(context, '/products');
+                  } else if (index == 2) {
+                    Navigator.pushReplacementNamed(context, '/cart');
+                  }
+                },
               ),
-            ],
-            onTap: (index) {
-              setState(() {
-                _selectedBottomNavIndex = index;
-              });
-              if (index == 0) {
-                Navigator.pushReplacementNamed(context, '/home');
-              } else if (index == 1) {
-                Navigator.pushReplacementNamed(context, '/products');
-              } else if (index == 2) {
-                Navigator.pushReplacementNamed(context, '/cart');
-              }
-            },
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -637,23 +746,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    bool isLogout = false,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isLogout ? const Color(0xFFE53935) : Colors.white,
           borderRadius: BorderRadius.circular(25),
         ),
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFFB8724D), size: 22),
+            Icon(
+              icon, 
+              color: isLogout ? Colors.white : const Color(0xFFB8724D), 
+              size: 22,
+            ),
             const SizedBox(width: 12),
             Text(
               label,
-              style: const TextStyle(
-                color: Color(0xFF3E2723),
+              style: TextStyle(
+                color: isLogout ? Colors.white : const Color(0xFF3E2723),
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),

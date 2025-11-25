@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/custom_carousel.dart';
+import '../../providers/auth_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,26 +21,11 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   final List<Map<String, String>> _brands = [
-    {
-      'name': 'Samsung',
-      'logo': 'assets/images/brands/samsung.png',
-    },
-    {
-      'name': 'Apple',
-      'logo': 'assets/images/brands/apple.png',
-    },
-    {
-      'name': 'Xiaomi',
-      'logo': 'assets/images/brands/xiaomi.png',
-    },
-    {
-      'name': 'Google',
-      'logo': 'assets/images/brands/google.png',
-    },
-    {
-      'name': 'Huawei',
-      'logo': 'assets/images/brands/huawei.png',
-    },
+    {'name': 'Samsung', 'logo': 'assets/images/brands/samsung.png'},
+    {'name': 'Apple', 'logo': 'assets/images/brands/apple.png'},
+    {'name': 'Xiaomi', 'logo': 'assets/images/brands/xiaomi.png'},
+    {'name': 'Google', 'logo': 'assets/images/brands/google.png'},
+    {'name': 'Huawei', 'logo': 'assets/images/brands/huawei.png'},
   ];
 
   final List<Map<String, String>> _products = [
@@ -176,10 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       child: const TextField(
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.black87,
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.black87),
                         decoration: InputDecoration(
                           prefixIcon: Icon(
                             Icons.search,
@@ -207,7 +191,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   // PROFILE ICON
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/profile');
+                      final authProvider = Provider.of<AuthProvider>(
+                        context,
+                        listen: false,
+                      );
+
+                      // Cek apakah user sudah login
+                      if (authProvider.isLoggedIn) {
+                        // Sudah login, ke profile
+                        Navigator.pushNamed(context, '/profile');
+                      } else {
+                        // Belum login, ke login
+                        Navigator.pushNamed(context, '/login');
+                      }
                     },
                     child: Container(
                       width: 34,
@@ -284,103 +280,130 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     const SizedBox(height: 18),
+                    // CARD MASUK / DAFTAR - HANYA TAMPIL JIKA BELUM LOGIN
+                    Consumer<AuthProvider>(
+                      builder: (context, authProvider, child) {
+                        // Jika sudah login, card ini tidak tampil
+                        if (authProvider.isLoggedIn) {
+                          return const SizedBox(
+                            height: 18,
+                          ); // Spacing kecil aja
+                        }
 
-                    // CARD MASUK / DAFTAR
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: darkBar,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
+                        // Jika belum login, tampilkan card
+                        return Column(
                           children: [
-                            const Text(
-                              'Masuk atau daftar untuk menikmati',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
+                            const SizedBox(height: 18),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const Text(
-                              'berbelanja dengan maksimal',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: darkBar,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.25),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      'Masuk atau daftar untuk menikmati',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const Text(
+                                      'berbelanja dengan maksimal',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pushNamed(
+                                                context,
+                                                '/login',
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: orange,
+                                              foregroundColor: Colors.white,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 14,
+                                                  ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(26),
+                                              ),
+                                              elevation: 0,
+                                            ),
+                                            child: const Text(
+                                              'Masuk',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pushNamed(
+                                                context,
+                                                '/register',
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: orange,
+                                              foregroundColor: Colors.white,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 14,
+                                                  ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(26),
+                                              ),
+                                              elevation: 0,
+                                            ),
+                                            child: const Text(
+                                              'Daftar',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                              textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, '/login');
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: orange,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(26),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    child: const Text(
-                                      'Masuk',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, '/register');
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: orange,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(26),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    child: const Text(
-                                      'Daftar',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            const SizedBox(height: 22),
                           ],
-                        ),
-                      ),
+                        );
+                      },
                     ),
-
-                    const SizedBox(height: 22),
 
                     // PILIHAN BRAND + TOMBOL LIHAT LAIN
                     Padding(
@@ -466,8 +489,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Image.asset(
                                     brand['logo']!,
                                     fit: BoxFit.contain,
-                                    errorBuilder:
-                                        (context, error, stackTrace) {
+                                    errorBuilder: (context, error, stackTrace) {
                                       return Center(
                                         child: Text(
                                           brand['name']![0],
@@ -513,11 +535,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.6,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.6,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            ),
                         itemCount: _products.length,
                         itemBuilder: (context, index) {
                           final product = _products[index];
@@ -563,16 +585,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Image.asset(
                                         product['image']!,
                                         fit: BoxFit.contain,
-                                        errorBuilder: (context, error,
-                                            stackTrace) {
-                                          return const Center(
-                                            child: Icon(
-                                              Icons.phone_android,
-                                              size: 50,
-                                              color: Colors.grey,
-                                            ),
-                                          );
-                                        },
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return const Center(
+                                                child: Icon(
+                                                  Icons.phone_android,
+                                                  size: 50,
+                                                  color: Colors.grey,
+                                                ),
+                                              );
+                                            },
                                       ),
                                     ),
                                   ),
@@ -621,14 +643,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                           width: double.infinity,
                                           child: ElevatedButton(
                                             onPressed: () {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
                                                 SnackBar(
                                                   content: Text(
                                                     'Beli ${product['name']} sekarang',
                                                   ),
                                                   duration: const Duration(
-                                                      seconds: 1),
+                                                    seconds: 1,
+                                                  ),
                                                   backgroundColor: darkBar,
                                                 ),
                                               );
@@ -638,8 +662,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               foregroundColor: Colors.white,
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                vertical: 8,
-                                              ),
+                                                    vertical: 8,
+                                                  ),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(20),
@@ -679,9 +703,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: darkBar,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(20),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.4),
@@ -691,9 +713,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(20),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           child: BottomNavigationBar(
             backgroundColor: Colors.transparent,
             selectedItemColor: orange,
@@ -719,7 +739,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.pushNamed(context, '/cart');
                   break;
                 case 3: // Profile
-                  Navigator.pushNamed(context, '/profile');
+                  final authProvider = Provider.of<AuthProvider>(
+                    context,
+                    listen: false,
+                  );
+                  if (authProvider.isLoggedIn) {
+                    Navigator.pushNamed(context, '/profile');
+                  } else {
+                    Navigator.pushNamed(context, '/login');
+                  }
                   break;
               }
             },
@@ -728,11 +756,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: CircleAvatar(
                   radius: 14,
                   backgroundColor: orange,
-                  child: Icon(
-                    Icons.home,
-                    size: 18,
-                    color: Colors.white,
-                  ),
+                  child: Icon(Icons.home, size: 18, color: Colors.white),
                 ),
                 label: 'Home',
               ),
