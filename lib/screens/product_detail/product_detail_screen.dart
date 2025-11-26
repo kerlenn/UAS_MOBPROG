@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../checkout/checkout_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -413,9 +414,35 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // Ambil nama warna dan kapasitas dari index yang dipilih
+                            final selectedColorName = widget.product['colors'] != null && 
+                                                      _selectedColor < widget.product['colors'].length 
+                                                      ? "Warna Pilihan $_selectedColor" // Simplifikasi karena data warna cuma Color object
+                                                      : "Default Color";
+
+                            final selectedStorageName = widget.product['storage'] != null && 
+                                                        _selectedStorage < widget.product['storage'].length
+                                                        ? widget.product['storage'][_selectedStorage]
+                                                        : "-";
+
+                            // Gabungkan varian
+                            final variantString = "$selectedStorageName, $selectedColorName";
+
+                            // Navigasi ke CheckoutScreen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CheckoutScreen(
+                                  product: widget.product,
+                                  variant: variantString,
+                                  quantity: _quantity,
+                                ),
+                              ),
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFE86E25),
+                            backgroundColor: const Color(0xFFE86E25), // Sesuai kode asli Anda
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
