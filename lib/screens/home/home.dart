@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/custom_carousel.dart';
 import '../../providers/auth_provider.dart';
+import '../checkout/checkout_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -643,17 +644,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                           width: double.infinity,
                                           child: ElevatedButton(
                                             onPressed: () {
-                                              ScaffoldMessenger.of(
+                                              // Siapkan data produk untuk checkout
+                                              // Karena data di Home terbatas (cuma nama, harga, gambar),
+                                              // kita buat map product yang sesuai format yang dibutuhkan CheckoutScreen
+                                              final productForCheckout = {
+                                                'name': product['name'],
+                                                'price': product['discountPrice']!.isNotEmpty 
+                                                    ? product['discountPrice'] 
+                                                    : product['price'], // Pakai harga diskon jika ada
+                                                'image': product['image'],
+                                              };
+                                              Navigator.push(
                                                 context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    'Beli ${product['name']} sekarang',
+                                                MaterialPageRoute(
+                                                  builder: (context) => CheckoutScreen(
+                                                    product: productForCheckout,
+                                                    variant: "Standard", // Default varian karena beli dari Home
+                                                    quantity: 1,         // Default jumlah 1
                                                   ),
-                                                  duration: const Duration(
-                                                    seconds: 1,
-                                                  ),
-                                                  backgroundColor: darkBar,
                                                 ),
                                               );
                                             },
