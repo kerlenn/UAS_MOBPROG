@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/custom_carousel.dart';
 import '../../providers/auth_provider.dart';
 import '../checkout/checkout_screen.dart';
+import '../products/products_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -457,12 +458,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: _brands.map((brand) {
                           return GestureDetector(
                             onTap: () {
-                              // nanti bisa diarahkan ke halaman brand tertentu
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('${brand['name']} diklik'),
-                                  duration: const Duration(seconds: 1),
-                                  backgroundColor: darkBar,
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProductsScreen(
+                                    initialBrand: brand['name'],
+                                  ),
                                 ),
                               );
                             },
@@ -649,19 +650,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                               // kita buat map product yang sesuai format yang dibutuhkan CheckoutScreen
                                               final productForCheckout = {
                                                 'name': product['name'],
-                                                'price': product['discountPrice']!.isNotEmpty 
-                                                    ? product['discountPrice'] 
+                                                'price':
+                                                    product['discountPrice']!
+                                                        .isNotEmpty
+                                                    ? product['discountPrice']
                                                     : product['price'], // Pakai harga diskon jika ada
                                                 'image': product['image'],
                                               };
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => CheckoutScreen(
-                                                    product: productForCheckout,
-                                                    variant: "Standard", // Default varian karena beli dari Home
-                                                    quantity: 1,         // Default jumlah 1
-                                                  ),
+                                                  builder: (context) =>
+                                                      CheckoutScreen(
+                                                        product:
+                                                            productForCheckout,
+                                                        variant:
+                                                            "Standard", // Default varian karena beli dari Home
+                                                        quantity:
+                                                            1, // Default jumlah 1
+                                                      ),
                                                 ),
                                               );
                                             },

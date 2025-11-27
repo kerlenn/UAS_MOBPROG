@@ -4,7 +4,12 @@ import '../../providers/auth_provider.dart'; // Tambahan untuk AuthProvider
 import '../product_detail/product_detail_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
-  const ProductsScreen({super.key});
+  final String? initialBrand;
+  
+  const ProductsScreen({
+    super.key, 
+    this.initialBrand,
+  });
 
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
@@ -20,6 +25,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
   // 2. Brand State
   final List<String> _availableBrands = ['Samsung', 'Apple', 'Xiaomi', 'Google', 'Huawei'];
   List<String> _selectedBrands = []; 
+
+  @override
+  void initState() {
+    super.initState();
+    // Jika ada initialBrand dari Home, masukkan ke _selectedBrands agar filter aktif
+    if (widget.initialBrand != null) {
+      _selectedBrands.add(widget.initialBrand!);
+    }
+  }
 
   // 3. Price State
   RangeValues _selectedPriceRange = const RangeValues(0, 30000000); 
