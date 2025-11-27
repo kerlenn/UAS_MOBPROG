@@ -7,7 +7,6 @@ import 'screens/keranjang_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/signUp/signup_screen.dart';
-import 'screens/keranjang_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,7 +38,7 @@ class MyApp extends StatelessWidget {
           '/': (context) => const HomeScreen(),
           '/home': (context) => const HomeScreen(),
           '/products': (context) => const ProductsScreen(),
-          '/cart': (context) => const KeranjangScreen(),
+          '/cart': (context) => const CartScreen(),
           '/profile': (context) => const ProfileScreen(),
           '/brands': (context) => const BrandsScreen(),
           '/login': (context) => const LoginScreen(),
@@ -77,6 +76,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class CartScreen extends StatelessWidget {
+  const CartScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Keranjang')),
+      body: const Center(child: Text('Halaman Keranjang')),
+    );
+  }
+}
 
 class BrandsScreen extends StatelessWidget {
   const BrandsScreen({super.key});
