@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.25),
+              color: Colors.black.withOpacity(0.25),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
+                    color: Colors.black.withOpacity(0.4),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Row(
                 children: [
-                  // Logo kotak (tanpa background putih, nempel di bar hitam)
+                  // Logo kotak
                   Image.asset(
                     'assets/images/logo.png',
                     width: 32,
@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(26),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.35),
+                            color: Colors.black.withOpacity(0.35),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -198,12 +198,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         listen: false,
                       );
 
-                      // Cek apakah user sudah login
                       if (authProvider.isLoggedIn) {
-                        // Sudah login, ke profile
                         Navigator.pushNamed(context, '/profile');
                       } else {
-                        // Belum login, ke login
                         Navigator.pushNamed(context, '/login');
                       }
                     },
@@ -283,144 +280,94 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 18),
 
-                    // CARD MASUK / DAFTAR
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: darkBar,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.25),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                    // CARD MASUK / DAFTAR - HANYA TAMPIL JIKA BELUM LOGIN
+                    // CARD MASUK / DAFTAR (HANYA JIKA BELUM LOGIN)
                     Consumer<AuthProvider>(
                       builder: (context, authProvider, child) {
-                        // Jika sudah login, card ini tidak tampil
                         if (authProvider.isLoggedIn) {
-                          return const SizedBox(
-                            height: 18,
-                          ); // Spacing kecil aja
+                          return const SizedBox.shrink(); 
                         }
 
-                        // Jika belum login, tampilkan card
-                        return Column(
-                          children: [
-                            const SizedBox(height: 18),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: darkBar,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.25),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Container(
+                            padding: const EdgeInsets.all(20),
+                            margin: const EdgeInsets.only(bottom: 22),
+                            decoration: BoxDecoration(
+                              color: darkBar,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.25),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
                                 ),
-                                child: Column(
-                                  children: [
-                                    const Text(
-                                      'Masuk atau daftar untuk menikmati',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const Text(
-                                      'berbelanja dengan maksimal',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pushNamed(
-                                                context,
-                                                '/login',
-                                              );
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: orange,
-                                              foregroundColor: Colors.white,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 14,
-                                                  ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(26),
-                                              ),
-                                              elevation: 0,
-                                            ),
-                                            child: const Text(
-                                              'Masuk',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pushNamed(
-                                                context,
-                                                '/register',
-                                              );
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: orange,
-                                              foregroundColor: Colors.white,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 14,
-                                                  ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(26),
-                                              ),
-                                              elevation: 0,
-                                            ),
-                                            child: const Text(
-                                              'Daftar',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              ],
                             ),
-                            const SizedBox(height: 22),
-                          ],
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Masuk atau daftar untuk menikmati\nberbelanja dengan maksimal',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pushNamed(context, '/login');
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: orange,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(vertical: 14),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(26),
+                                          ),
+                                          elevation: 0,
+                                        ),
+                                        child: const Text(
+                                          'Masuk',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pushNamed(context, '/register');
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: orange,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(vertical: 14),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(26),
+                                          ),
+                                          elevation: 0,
+                                        ),
+                                        child: const Text(
+                                          'Daftar',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         );
                       },
                     ),
@@ -468,7 +415,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 14),
 
-                    // BRAND ICONS (CIRCLE + BORDER)
+                    // BRAND ICONS
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
@@ -497,7 +444,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.2),
+                                    color: Colors.black.withOpacity(0.2),
                                     blurRadius: 8,
                                     offset: const Offset(0, 3),
                                   ),
@@ -547,25 +494,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 14),
 
-                    // GRID PRODUK – CARD HITAM + BORDER PUTIH
+                    // GRID PRODUK
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              childAspectRatio: 0.6,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                            ),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.6,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
                         itemCount: _products.length,
                         itemBuilder: (context, index) {
                           final product = _products[index];
                           return GestureDetector(
                             onTap: () {
-                              // bisa diarahkan ke detail produk nanti
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('${product['name']} diklik'),
@@ -584,7 +529,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.25),
+                                    color: Colors.black.withOpacity(0.25),
                                     blurRadius: 8,
                                     offset: const Offset(0, 3),
                                   ),
@@ -594,27 +539,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // IMAGE
-                                  ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(18),
-                                    ),
-                                    child: Container(
-                                      height: 130,
-                                      width: double.infinity,
-                                      color: Colors.white,
-                                      child: Image.asset(
-                                        product['image']!,
-                                        fit: BoxFit.contain,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                              return const Center(
-                                                child: Icon(
-                                                  Icons.phone_android,
-                                                  size: 50,
-                                                  color: Colors.grey,
-                                                ),
-                                              );
-                                            },
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(18),
+                                      ),
+                                      child: Container(
+                                        width: double.infinity,
+                                        color: Colors.white,
+                                        child: Image.asset(
+                                          product['image']!,
+                                          fit: BoxFit.contain,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return const Center(
+                                              child: Icon(
+                                                Icons.phone_android,
+                                                size: 50,
+                                                color: Colors.grey,
+                                              ),
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -623,8 +568,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Padding(
                                     padding: const EdgeInsets.all(10),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           product['name']!,
@@ -637,15 +581,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         const SizedBox(height: 4),
-                                        if (product['discountPrice']!
-                                            .isNotEmpty)
+                                        if (product['discountPrice']!.isNotEmpty)
                                           Text(
                                             product['price']!,
                                             style: TextStyle(
                                               fontSize: 11,
                                               color: Colors.grey[400],
-                                              decoration:
-                                                  TextDecoration.lineThrough,
+                                              decoration: TextDecoration.lineThrough,
                                             ),
                                           ),
                                         Text(
@@ -663,43 +605,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                           width: double.infinity,
                                           child: ElevatedButton(
                                             onPressed: () {
-                                              // Siapkan data produk untuk checkout
-                                              // Karena data di Home terbatas (cuma nama, harga, gambar),
-                                              // kita buat map product yang sesuai format yang dibutuhkan CheckoutScreen
                                               final productForCheckout = {
                                                 'name': product['name'],
-                                                'price':
-                                                    product['discountPrice']!
-                                                        .isNotEmpty
+                                                'price': product['discountPrice']!.isNotEmpty
                                                     ? product['discountPrice']
-                                                    : product['price'], // Pakai harga diskon jika ada
+                                                    : product['price'],
                                                 'image': product['image'],
                                               };
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      CheckoutScreen(
-                                                        product:
-                                                            productForCheckout,
-                                                        variant:
-                                                            "Standard", // Default varian karena beli dari Home
-                                                        quantity:
-                                                            1, // Default jumlah 1
-                                                      ),
+                                                  builder: (context) => CheckoutScreen(
+                                                    product: productForCheckout,
+                                                    variant: "Standard",
+                                                    quantity: 1,
+                                                  ),
                                                 ),
                                               );
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: orange,
                                               foregroundColor: Colors.white,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 8,
-                                                  ),
+                                              padding: const EdgeInsets.symmetric(vertical: 8),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
+                                                borderRadius: BorderRadius.circular(20),
                                               ),
                                               elevation: 0,
                                             ),
@@ -739,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.4),
+              color: Colors.black.withOpacity(0.4),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -763,7 +692,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               switch (index) {
                 case 0: // Home
-                  Navigator.pushReplacementNamed(context, '/');
+                  // Stay here
                   break;
                 case 1: // Produk
                   Navigator.pushNamed(context, '/products');
