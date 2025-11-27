@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../keranjang_screen.dart'; 
+import '../product_detail/product_detail_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -27,6 +28,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/iphone_17_pro_max.jpg',
       'brand': 'Apple',
       'colors': [Color(0xFFE36B37), Color(0xFF1C2739), Color(0xFFE3E3E1)],
+      'storage': ['256 GB', '512 GB', '1 TB', '2 TB'],
+      // TAMBAHAN DESKRIPSI KHUSUS IPHONE 17
+      'description': 'iPhone 17 Pro Max. iPhone paling andal yang pernah ada. Layar 6,9 inci yang cemerlang, desain unibody aluminium, chip A19 Pro, semua kamera belakang 48 MP, dan kekuatan baterai terbaik.',
     },
     {
       'name': 'Apple iPhone 15',
@@ -35,6 +39,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/iphone_15.jpg',
       'brand': 'Apple',
       'colors': [Color(0xFF363738), Color(0xFFDBE4EA), Color(0xFFFCE3E5)],
+      'storage': ['128 GB', '256 GB', '512 GB'],
+      // TAMBAHAN DESKRIPSI KHUSUS IPHONE 15
+      'description': 'iPhone 15 menghadirkan Dynamic Island, kamera utama 48 MP, dan USB-C. Desain tahan air dan debu yang tangguh dengan aluminium sekelas dirgantara.',
     },
     {
       'name': 'Apple iPhone 13',
@@ -43,6 +50,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/iphone_13.jpg',
       'brand': 'Apple',
       'colors': [Color(0xFF1F2020), Color(0xFFF9F6EF)],
+      'storage': ['128 GB', '256 GB'],
+      // TAMBAHAN DESKRIPSI KHUSUS IPHONE 13
+      'description': 'Sistem kamera ganda paling canggih yang pernah ada di iPhone. Chip A15 Bionic yang secepat kilat. Lompatan besar dalam kekuatan baterai. Desain kokoh.',
     },
     {
       'name': 'Xiaomi Redmi Note 13',
@@ -51,6 +61,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/redmi_note_13.jpg',
       'brand': 'Xiaomi',
       'colors': [Color(0xFFE6C8B6), Color(0xFFC0DCE9)],
+      'storage': ['128 GB', '256 GB'],
+      'description': 'Redmi Note 13 hadir dengan layar AMOLED 120Hz yang memukau, kamera utama 108MP ultra-jernih, dan performa Snapdragon yang andal untuk multitasking.',
     },
     {
       'name': 'Samsung Galaxy S25',
@@ -59,6 +71,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/samsung_s25.jpg',
       'brand': 'Samsung',
       'colors': [Color(0xFF1F2A44), Color(0xFFDAE5EB)],
+      'storage': ['256 GB', '512 GB'],
+      'description': 'Galaxy S25 dengan layar Dynamic AMOLED 2X 120Hz, kamera belakang canggih, dan baterai tahan lama yang mendukung pengisian cepat serta nirkabel.',
     },
     {
       'name': 'Google Pixel 9 Pro',
@@ -67,6 +81,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/pixel_9.jpg',
       'brand': 'Google',
       'colors': [Color(0xFFF5F5F5), Color(0xFF3C4043)],
+      'storage': ['128 GB', '256 GB', '512 GB'],
+      'description': 'Pixel 9 Pro dengan kamera canggih, layar LTPO OLED 120Hz, dan chip Tensor G3 untuk performa optimal serta fitur AI terbaru dari Google.',
     },
     {
       'name': 'Huawei Pura 80',
@@ -75,6 +91,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'image': 'assets/images/products/huawei_pura.jpg',
       'brand': 'Huawei',
       'colors': [Color(0xFF000000), Color(0xFF6B4E3D)],
+      'storage': ['256 GB', '512 GB'],
+      'description': 'Huawei Pura 80 dengan layar OLED 90Hz, kamera belakang ganda 50MP, dan baterai tahan lama yang mendukung pengisian cepat 22.5W.',
     },
   ];
 
@@ -159,6 +177,39 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     Text('${formatCurrency(tempRange.start.round())} - ${formatCurrency(tempRange.end.round())}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
                     RangeSlider(values: tempRange, min: 0, max: 30000000, divisions: 30, activeColor: const Color(0xFFFF6B35),
                       onChanged: (RangeValues values) { setStateDialog(() { tempRange = values; }); },),
+
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildDialogHeader('Rentang Harga'),
+                    const SizedBox(height: 20),
+                    Text(
+                      '${formatCurrency(tempRange.start.round())} - ${formatCurrency(tempRange.end.round())}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    RangeSlider(
+                      values: tempRange,
+                      min: 0,
+                      max: 30000000,
+                      divisions: 30,
+                      activeColor: const Color(0xFFFF6B35),
+                      inactiveColor: Colors.grey.shade300,
+                      labels: RangeLabels(
+                        formatCurrency(tempRange.start.round()),
+                        formatCurrency(tempRange.end.round()),
+                      ),
+                      onChanged: (RangeValues values) {
+                        setStateDialog(() {
+                          tempRange = values;
+                        });
+                      },
+                    ),
                     const SizedBox(height: 10),
                     Row(children: [ Expanded(child: OutlinedButton(onPressed: () { setState(() { _isPriceFilterActive = false; _selectedPriceRange = const RangeValues(0, 30000000); }); Navigator.pop(context); }, child: const Text('Reset', style: TextStyle(color: Colors.grey)),),),
                         const SizedBox(width: 10),
@@ -246,6 +297,32 @@ class _ProductsScreenState extends State<ProductsScreen> {
         child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           child: BottomNavigationBar(backgroundColor: Colors.transparent, selectedItemColor: orange, unselectedItemColor: Colors.white, currentIndex: _selectedBottomNavIndex, type: BottomNavigationBarType.fixed,
             items: const [BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'), BottomNavigationBarItem(icon: CircleAvatar(radius: 14, backgroundColor: orange, child: Icon(Icons.people_alt_rounded, size: 18, color: Colors.white),), label: 'Produk'), BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Keranjang'), BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: darkBar,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: BottomNavigationBar(
+            backgroundColor: Colors.transparent,
+            selectedItemColor: orange,
+            unselectedItemColor: Colors.white,
+            currentIndex: _selectedBottomNavIndex,
+            type: BottomNavigationBarType.fixed,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(
+                icon: CircleAvatar(
+                  radius: 14,
+                  backgroundColor: orange,
+                  child: Icon(Icons.people_alt_rounded, size: 18, color: Colors.white),
+                ), 
+                label: 'Produk'
+              ),
+              BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Keranjang'),
+              BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+            ],
             onTap: (index) {
               setState(() { _selectedBottomNavIndex = index; });
               if (index == 0) Navigator.pushReplacementNamed(context, '/home');
@@ -291,6 +368,67 @@ class _ProductsScreenState extends State<ProductsScreen> {
               )
             ],),),
         ],),
+    List<Color> colors = product['colors'] as List<Color>;
+    return GestureDetector(
+      onTap: () {
+        // Navigasi ke Halaman Detail dengan membawa data product
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(product: product),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 8, offset: const Offset(2, 4))
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Center(
+                  child: Hero(
+                    tag: product['name'], 
+                    child: Image.asset(product['image'], fit: BoxFit.contain,
+                        errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.grey)),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(product['name'], maxLines: 2, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black)),
+                  const SizedBox(height: 6),
+                  Text(formatCurrency(product['price']),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black)),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(children: colors.take(3).map((c) => Container(
+                        margin: const EdgeInsets.only(right: 4), width: 12, height: 12,
+                        decoration: BoxDecoration(color: c, shape: BoxShape.circle, border: Border.all(color: Colors.grey.shade300)),
+                      )).toList()),
+                      const Icon(Icons.shopping_cart_outlined, size: 20),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
