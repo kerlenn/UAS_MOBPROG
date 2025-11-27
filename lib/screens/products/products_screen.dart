@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Tambahan untuk AuthProvider
+import '../../providers/auth_provider.dart'; // Tambahan untuk AuthProvider
 import '../keranjang_screen.dart'; 
 import '../product_detail/product_detail_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
-  const ProductsScreen({super.key});
+  final String? initialBrand;
+  
+  const ProductsScreen({
+    super.key, 
+    this.initialBrand,
+  });
 
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
@@ -16,6 +23,17 @@ class _ProductsScreenState extends State<ProductsScreen> {
   String _selectedSortOption = 'Sesuai Nama'; 
   final List<String> _availableBrands = ['Samsung', 'Apple', 'Xiaomi', 'Google', 'Huawei'];
   List<String> _selectedBrands = []; 
+
+  @override
+  void initState() {
+    super.initState();
+    // Jika ada initialBrand dari Home, masukkan ke _selectedBrands agar filter aktif
+    if (widget.initialBrand != null) {
+      _selectedBrands.add(widget.initialBrand!);
+    }
+  }
+
+  // 3. Price State
   RangeValues _selectedPriceRange = const RangeValues(0, 30000000); 
   bool _isPriceFilterActive = false; 
 
@@ -29,7 +47,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'brand': 'Apple',
       'colors': [Color(0xFFE36B37), Color(0xFF1C2739), Color(0xFFE3E3E1)],
       'storage': ['256 GB', '512 GB', '1 TB', '2 TB'],
-      // TAMBAHAN DESKRIPSI KHUSUS IPHONE 17
       'description': 'iPhone 17 Pro Max. iPhone paling andal yang pernah ada. Layar 6,9 inci yang cemerlang, desain unibody aluminium, chip A19 Pro, semua kamera belakang 48 MP, dan kekuatan baterai terbaik.',
     },
     {
@@ -40,7 +57,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'brand': 'Apple',
       'colors': [Color(0xFF363738), Color(0xFFDBE4EA), Color(0xFFFCE3E5)],
       'storage': ['128 GB', '256 GB', '512 GB'],
-      // TAMBAHAN DESKRIPSI KHUSUS IPHONE 15
       'description': 'iPhone 15 menghadirkan Dynamic Island, kamera utama 48 MP, dan USB-C. Desain tahan air dan debu yang tangguh dengan aluminium sekelas dirgantara.',
     },
     {
@@ -51,7 +67,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'brand': 'Apple',
       'colors': [Color(0xFF1F2020), Color(0xFFF9F6EF)],
       'storage': ['128 GB', '256 GB'],
-      // TAMBAHAN DESKRIPSI KHUSUS IPHONE 13
       'description': 'Sistem kamera ganda paling canggih yang pernah ada di iPhone. Chip A15 Bionic yang secepat kilat. Lompatan besar dalam kekuatan baterai. Desain kokoh.',
     },
     {
@@ -129,9 +144,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
     return results;
   }
 
-  // ==================== DIALOGS (Sort, Brand, Price) ====================
-  // (Kode dialog sama seperti sebelumnya, disingkat agar muat)
-  
+  // ==================== DIALOGS ====================
+
   void _showSortDialog() {
     showDialog(context: context, builder: (context) {
         return Dialog(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -249,19 +263,90 @@ class _ProductsScreenState extends State<ProductsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // HEADER
-            Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), decoration: BoxDecoration(color: darkBar, borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(18), bottomRight: Radius.circular(18)),),
-              child: Row(children: [
-                  GestureDetector(onTap: () => Navigator.pop(context), child: const CircleAvatar(backgroundColor: orange, radius: 18, child: Icon(Icons.arrow_back, color: Colors.white, size: 20),),),
+            // ==================== HEADER ====================
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: darkBar,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.4),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // Back Button
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const CircleAvatar(
+                      backgroundColor: orange,
+                      radius: 18,
+                      child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                    ),
+                  ),
                   const SizedBox(width: 10),
-                  Expanded(child: Container(height: 40, decoration: BoxDecoration(color: const Color(0xFFFFF3EA), borderRadius: BorderRadius.circular(20),),
-                      child: const TextField(decoration: InputDecoration(prefixIcon: Icon(Icons.search, color: Colors.black87, size: 20), hintText: 'Search Something Here...', hintStyle: TextStyle(color: orange, fontSize: 12), border: InputBorder.none, contentPadding: EdgeInsets.symmetric(vertical: 8),),),),),
+                  
+                  // Search Bar (Style Home)
+                  Expanded(
+                    child: Container(
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3EA),
+                        borderRadius: BorderRadius.circular(26),
+                      ),
+                      child: const TextField(
+                        style: TextStyle(fontSize: 13, color: Colors.black87),
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.search, color: Colors.black87, size: 22),
+                          hintText: 'Search Something Here...',
+                          hintStyle: TextStyle(color: orange, fontSize: 13, fontWeight: FontWeight.w500),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 10),
-                  const Icon(Icons.shopping_cart, color: orange, size: 24),
-                ],),
+
+                  // Profile Icon
+                  GestureDetector(
+                    onTap: () {
+                      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                      if (authProvider.isLoggedIn) {
+                        Navigator.pushNamed(context, '/profile');
+                      } else {
+                        Navigator.pushNamed(context, '/login');
+                      }
+                    },
+                    child: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: orange, width: 2),
+                      ),
+                      child: const Icon(Icons.person_outline, color: orange, size: 20),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // Cart Icon
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/cart');
+                    },
+                    child: const Icon(Icons.shopping_cart_outlined, color: orange, size: 26),
+                  ),
+                ],
+              ),
             ),
 
-            // CONTENT
+            // ==================== CONTENT ====================
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -327,7 +412,40 @@ class _ProductsScreenState extends State<ProductsScreen> {
               setState(() { _selectedBottomNavIndex = index; });
               if (index == 0) Navigator.pushReplacementNamed(context, '/home');
               if (index == 2) Navigator.pushNamed(context, '/cart');
-            },),),),
+              if (index == 3) {
+                 final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                 if (authProvider.isLoggedIn) {
+                   Navigator.pushNamed(context, '/profile');
+                 } else {
+                   Navigator.pushNamed(context, '/login');
+                 }
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip({required String label, required bool isActive, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFFFF6B35) : const Color(0xFFFFF0EB),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isActive ? const Color(0xFFFF6B35) : Colors.black12, width: 1),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.keyboard_arrow_down, size: 18, color: isActive ? Colors.white : Colors.black87),
+            const SizedBox(width: 6),
+            Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: isActive ? Colors.white : Colors.black87)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -371,7 +489,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
     List<Color> colors = product['colors'] as List<Color>;
     return GestureDetector(
       onTap: () {
-        // Navigasi ke Halaman Detail dengan membawa data product
         Navigator.push(
           context,
           MaterialPageRoute(
