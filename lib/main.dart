@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/home/home.dart';
 import 'screens/products/products_screen.dart';
+import 'screens/keranjang_screen.dart'; 
 import 'screens/profile/profile_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/signUp/signup_screen.dart';
@@ -13,7 +14,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +51,28 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(builder: (context) => const HomeScreen());
         },
       ),
+
+      // Halaman awal
+      initialRoute: '/',
+
+      // Daftar route
+      routes: {
+        '/': (context) => const HomeScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/products': (context) => const ProductsScreen(),
+        '/cart': (context) => const KeranjangScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/brands': (context) => const BrandsScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+      },
+
+      // Fallback kalau nama route salah
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        );
+      },
     );
   }
 }
