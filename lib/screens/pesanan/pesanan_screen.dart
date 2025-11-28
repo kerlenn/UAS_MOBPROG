@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 class PesananScreen extends StatefulWidget {
   const PesananScreen({super.key});
@@ -14,6 +15,7 @@ class PesananScreen extends StatefulWidget {
 class _PesananScreenState extends State<PesananScreen> {
   int _selectedBottomNavIndex = 3; // Profile section
   String _selectedFilter = 'Semua'; // Filter status
+  Timer? _statusUpdateTimer; // Timer untuk auto update status
 
   final List<String> _filterOptions = [
     'Semua',
@@ -23,6 +25,38 @@ class _PesananScreenState extends State<PesananScreen> {
     'Selesai',
     'Dibatalkan',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Start auto status update timer
+    _startStatusUpdateTimer();
+  }
+
+  @override
+  void dispose() {
+    _statusUpdateTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startStatusUpdateTimer() {
+    _statusUpdateTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+      final orders = orderProvider.orders;
+
+      for (var order in orders) {
+        // Auto update status: pending -> processing -> shipped -> delivered
+        if (order.status == 'pending') {
+          orderProvider.updateOrderStatus(order.orderId, 'processing');
+        } else if (order.status == 'processing') {
+          orderProvider.updateOrderStatus(order.orderId, 'shipped');
+        } else if (order.status == 'shipped') {
+          orderProvider.updateOrderStatus(order.orderId, 'delivered');
+        }
+        // Jika sudah delivered atau cancelled, tidak diupdate lagi
+      }
+    });
+  }
 
   String _getStatusFromFilter(String filter) {
     switch (filter) {
@@ -398,7 +432,7 @@ class _PesananScreenState extends State<PesananScreen> {
               ),
             ),
 
-            // FILTER TABS
+            // FILTER TABS (FIXED - Responsive & Scrollable)
             Container(
               height: 50,
               margin: const EdgeInsets.symmetric(vertical: 10),
@@ -416,7 +450,10 @@ class _PesananScreenState extends State<PesananScreen> {
                       });
                     },
                     child: Container(
-                      margin: const EdgeInsets.only(right: 8),
+                      margin: EdgeInsets.only(
+                        right: 8,
+                        left: index == 0 ? 0 : 0, // No extra padding di kiri untuk item pertama
+                      ),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
