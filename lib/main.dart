@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 
 // Providers
 import 'providers/auth_provider.dart';
-import 'providers/cart_provider.dart'; // <--- NEW IMPORT
+import 'providers/cart_provider.dart'; // Punya Kita
+import 'providers/order_provider.dart'; // Punya Teman (Pastikan file ini ada)
 
 // Screens
 import 'screens/home/home.dart';
@@ -12,12 +13,13 @@ import 'screens/keranjang_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/signUp/signup_screen.dart'; 
+import 'screens/pesanan/pesanan_screen.dart'; // Punya Teman (Pastikan file ini ada)
 
 void main() {
   runApp(const MyAppRoot());
 }
 
-// Root Widget untuk MultiProvider
+// Root Widget
 class MyAppRoot extends StatelessWidget {
   const MyAppRoot({super.key});
 
@@ -26,13 +28,15 @@ class MyAppRoot extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => CartProvider()), // <--- DAFTARKAN CART PROVIDER
+        ChangeNotifierProvider(create: (_) => CartProvider()), // Keranjang
+        ChangeNotifierProvider(create: (_) => OrderProvider()), // Order
       ],
       child: const MyApp(),
     );
   }
 }
 
+// Stateful Widget (Wajib Stateful agar login tidak error loop)
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -44,6 +48,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // Cek Login Aman
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       authProvider.checkLoginStatus();
@@ -62,6 +67,7 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
       ),
       
+      // Logic Redirect Login
       home: Consumer<AuthProvider>(
         builder: (context, auth, child) {
           if (auth.isLoading) {
@@ -75,6 +81,7 @@ class _MyAppState extends State<MyApp> {
         },
       ),
 
+      // Gabungan Route Kita + Route Teman
       routes: {
         '/home': (context) => const HomeScreen(),
         '/products': (context) => const ProductsScreen(),
@@ -82,6 +89,7 @@ class _MyAppState extends State<MyApp> {
         '/profile': (context) => const ProfileScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const SignupScreen(),
+        '/pesanan': (context) => const PesananScreen(), // Route Pesanan
       },
 
       onUnknownRoute: (settings) {

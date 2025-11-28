@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import '../../providers/cart_provider.dart'; // <--- Import Model dari sini
+import 'package:provider/provider.dart'; // Wajib import provider
+
+// Import Provider dan Model yang dibutuhkan
+import '../../providers/cart_provider.dart';  
+import '../../providers/order_provider.dart'; 
 import '../payment/payment_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  final List<CartItem>? cartItems; // Pakai Model CartItem
+  // Menerima List dari Keranjang (Opsional)
+  final List<CartItem>? cartItems;
   final int? totalPrice;
 
-  // Opsional: Beli Langsung
+  // Menerima Single Product dari Beli Langsung (Opsional)
   final Map<String, dynamic>? product;
   final String? variant;
   final int? quantity;
@@ -33,9 +38,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
+    // Data Dummy User
     _nameController.text = "Yusuf Abdur";
     _phoneController.text = "(+62) 857 1828 6519";
     _addressController.text = "Jalan Dahlia IV Blok ## No. ##, Jakarta";
+  }
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
   }
 
   String formatCurrency(int amount) {
@@ -46,10 +60,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     const orange = Color(0xFFFF6B35);
 
+    // --- LOGIKA GABUNGAN DATA (Keranjang vs Beli Langsung) ---
     List<CartItem> displayItems = [];
+
     if (widget.cartItems != null && widget.cartItems!.isNotEmpty) {
+      // Kasus 1: Dari Keranjang (Banyak Barang)
       displayItems = widget.cartItems!;
     } else if (widget.product != null) {
+      // Kasus 2: Beli Langsung (1 Barang -> Konversi ke CartItem sementara)
       displayItems.add(CartItem(
         name: widget.product!['name'],
         basePrice: widget.product!['price'],
@@ -60,6 +78,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ));
     }
 
+    // Hitung Total jika belum dikirim
     int finalTotal = widget.totalPrice ?? 0;
     if (finalTotal == 0) {
       for (var item in displayItems) {
@@ -80,7 +99,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Alamat
+            // 1. Alamat Pengiriman
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
@@ -89,15 +108,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 children: [
                   const Text("Alamat Pengiriman", style: TextStyle(color: orange, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-                  TextField(controller: _nameController, decoration: const InputDecoration(isDense: true, hintText: "Nama")),
-                  TextField(controller: _phoneController, decoration: const InputDecoration(isDense: true, hintText: "No HP")),
-                  TextField(controller: _addressController, maxLines: 2, decoration: const InputDecoration(isDense: true, hintText: "Alamat")),
+                  TextField(controller: _nameController, decoration: const InputDecoration(isDense: true, hintText: "Nama Penerima")),
+                  TextField(controller: _phoneController, decoration: const InputDecoration(isDense: true, hintText: "Nomor Telepon")),
+                  TextField(controller: _addressController, maxLines: 2, decoration: const InputDecoration(isDense: true, hintText: "Alamat Lengkap")),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Produk
+            // 2. Produk Dipesan
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
@@ -106,6 +125,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 children: [
                   const Text("Produk Dipesan", style: TextStyle(color: orange, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
+                  // Tampilkan semua item
                   ...displayItems.map((item) => Padding(
                     padding: const EdgeInsets.only(bottom: 12.0),
                     child: Row(
@@ -136,7 +156,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Bank
+            // 3. Metode Pembayaran (Bank)
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
@@ -158,6 +178,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ],
         ),
       ),
+
+      // 4. Tombol Buat Pesanan
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         color: Colors.white,
@@ -168,13 +190,76 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           ),
           onPressed: () {
-             Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PaymentScreen(
-                  totalPrice: finalTotal,
-                  selectedBank: _selectedBank,
+            // A. Validasi
+            if (_addressController.text.isEmpty || _nameController.text.isEmpty) {
+               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Lengkapi alamat pengiriman!")));
+               return;
+            }
+
+            // B. Simpan ke OrderProvider (Logika Temanmu)
+            // Kita harus cek apakah OrderProvider sudah ada/didaftarkan di main.dart
+            // Jika belum ada filenya, bagian ini bisa di-comment dulu.
+            try {
+              final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+              
+              // Konversi CartItem ke format Map untuk OrderProvider
+              final List<Map<String, dynamic>> orderItems = displayItems.map((item) => {
+                'name': item.name,
+                'price': item.price,
+                'quantity': item.quantity,
+                'image': item.image,
+                'variant': item.variant,
+              }).toList();
+
+              orderProvider.addOrder(
+                cartItems: orderItems,
+                paymentMethod: 'Transfer $_selectedBank',
+                shippingAddress: _addressController.text,
+                recipientName: _nameController.text,
+                recipientPhone: _phoneController.text,
+              );
+            } catch (e) {
+              // Abaikan error jika OrderProvider belum siap
+              print("Order Provider belum siap: $e");
+            }
+
+            // C. Tampilkan Pop-up Sukses -> Lalu ke Payment
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) => AlertDialog(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                title: const Column(
+                  children: [
+                    Icon(Icons.check_circle_outline, color: Colors.green, size: 60),
+                    SizedBox(height: 12),
+                    Text("Pesanan Dibuat!", style: TextStyle(fontWeight: FontWeight.bold)),
+                  ],
                 ),
+                content: const Text("Silakan lakukan pembayaran.", textAlign: TextAlign.center),
+                actions: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: orange, foregroundColor: Colors.white),
+                      onPressed: () {
+                        Navigator.pop(ctx); // Tutup Dialog
+                        
+                        // Pindah ke Payment Screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PaymentScreen(
+                              totalPrice: finalTotal,
+                              selectedBank: _selectedBank,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text("Bayar Sekarang"),
+                    ),
+                  )
+                ],
               ),
             );
           },
