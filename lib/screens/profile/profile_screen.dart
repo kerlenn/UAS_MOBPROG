@@ -737,13 +737,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onTap: _handleLogout,
                         isLogout: true,
                       ),
-                      // TOMBOL LOGOUT BARU
-                      _buildMenuButton(
-                        icon: Icons.logout,
-                        label: 'Logout',
-                        onTap: _handleLogout,
-                        isLogout: true,
-                      ),
                       const SizedBox(height: 30),
 
                       // Feedback Section

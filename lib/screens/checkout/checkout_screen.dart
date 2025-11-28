@@ -34,7 +34,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.initState();
     // Default data dummy untuk alamat (bisa diedit user)
     _nameController.text = "Yusuf Abdur";
-    _phoneController.text = "‪(+62) 857 1828 6519‬";
+    _phoneController.text = "(+62) 857 1828 6519";
     _addressController.text = "Jalan Dahlia IV Blok ## No. ##, RT.##/RW.##, Cengkareng, KOTA JAKARTA BARAT - CENGKARENG, DKI JAKARTA, ID 11720";
   }
 

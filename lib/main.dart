@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/order_provider.dart';
 import 'screens/home/home.dart';
 import 'screens/products/products_screen.dart';
-import 'screens/keranjang_screen.dart'; 
+import 'screens/keranjang_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/signUp/signup_screen.dart';
+import 'screens/pesanan/pesanan_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,13 +22,16 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
       ],
+
       child: MaterialApp(
         title: 'UAS MobProg',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.orange,
-          brightness: Brightness.light, // Ubah ke light agar sesuai dengan desain oranye/putih
+          brightness: Brightness
+              .light, // Ubah ke light agar sesuai dengan desain oranye/putih
           scaffoldBackgroundColor: const Color(0xFFF5F5F5),
         ),
 
@@ -42,7 +47,9 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => const ProfileScreen(),
           '/brands': (context) => const BrandsScreen(),
           '/login': (context) => const LoginScreen(),
-          '/register': (context) => const SignupScreen(), // Perbaikan: RegisterScreen -> SignupScreen
+          '/pesanan': (context) => const PesananScreen(),
+          '/register': (context) =>
+              const SignupScreen(), // Perbaikan: RegisterScreen -> SignupScreen
         },
 
         // Fallback kalau nama route salah
