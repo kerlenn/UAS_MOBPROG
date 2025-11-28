@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
-import '../keranjang_screen.dart'; // Pastikan import ini ada untuk globalCartItems jika dipakai
 import '../product_detail/product_detail_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   final String? initialBrand;
+  final String? initialSearchQuery; // Parameter untuk menerima teks pencarian
 
   const ProductsScreen({
     super.key,
     this.initialBrand,
+    this.initialSearchQuery,
   });
 
   @override
@@ -17,7 +16,11 @@ class ProductsScreen extends StatefulWidget {
 }
 
 class _ProductsScreenState extends State<ProductsScreen> {
-  int _selectedBottomNavIndex = 1;
+  // Controller untuk Search Bar
+  late TextEditingController _searchController;
+
+  // ignore: unused_field
+  final int _selectedBottomNavIndex = 1;
 
   // ==================== STATE FILTER ====================
   String _selectedSortOption = 'Sesuai Nama';
@@ -29,18 +32,26 @@ class _ProductsScreenState extends State<ProductsScreen> {
     'Huawei'
   ];
   List<String> _selectedBrands = [];
-
-  // 3. Price State
   RangeValues _selectedPriceRange = const RangeValues(0, 30000000);
   bool _isPriceFilterActive = false;
 
   @override
   void initState() {
     super.initState();
-    // Jika ada initialBrand dari Home, masukkan ke _selectedBrands agar filter aktif
+    
+    // 1. Inisialisasi Search Controller dengan teks dari Home (jika ada)
+    _searchController = TextEditingController(text: widget.initialSearchQuery ?? '');
+
+    // 2. Inisialisasi Brand Filter dengan brand dari Home (jika ada)
     if (widget.initialBrand != null) {
       _selectedBrands.add(widget.initialBrand!);
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   // Data Dummy Produk
@@ -51,10 +62,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'discountPrice': '',
       'image': 'assets/images/products/iphone_17_pro_max.jpg',
       'brand': 'Apple',
-      'colors': [Color(0xFFE36B37), Color(0xFF1C2739), Color(0xFFE3E3E1)],
+      'colors': [const Color(0xFFE36B37), const Color(0xFF1C2739), const Color(0xFFE3E3E1)],
       'storage': ['256 GB', '512 GB', '1 TB', '2 TB'],
-      'description':
-          'iPhone 17 Pro Max. iPhone paling andal yang pernah ada. Layar 6,9 inci yang cemerlang, desain unibody aluminium, chip A19 Pro, semua kamera belakang 48 MP, dan kekuatan baterai terbaik.',
+      'description': 'iPhone 17 Pro Max. iPhone paling andal yang pernah ada.',
     },
     {
       'name': 'Apple iPhone 15',
@@ -62,10 +72,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'discountPrice': '',
       'image': 'assets/images/products/iphone_15.jpg',
       'brand': 'Apple',
-      'colors': [Color(0xFF363738), Color(0xFFDBE4EA), Color(0xFFFCE3E5)],
+      'colors': [const Color(0xFF363738), const Color(0xFFDBE4EA), const Color(0xFFFCE3E5)],
       'storage': ['128 GB', '256 GB', '512 GB'],
-      'description':
-          'iPhone 15 menghadirkan Dynamic Island, kamera utama 48 MP, dan USB-C. Desain tahan air dan debu yang tangguh dengan aluminium sekelas dirgantara.',
+      'description': 'iPhone 15 menghadirkan Dynamic Island.',
     },
     {
       'name': 'Apple iPhone 13',
@@ -73,10 +82,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'discountPrice': 'Rp 8.249.000',
       'image': 'assets/images/products/iphone_13.jpg',
       'brand': 'Apple',
-      'colors': [Color(0xFF1F2020), Color(0xFFF9F6EF)],
+      'colors': [const Color(0xFF1F2020), const Color(0xFFF9F6EF)],
       'storage': ['128 GB', '256 GB'],
-      'description':
-          'Sistem kamera ganda paling canggih yang pernah ada di iPhone. Chip A15 Bionic yang secepat kilat. Lompatan besar dalam kekuatan baterai. Desain kokoh.',
+      'description': 'Sistem kamera ganda paling canggih.',
     },
     {
       'name': 'Xiaomi Redmi Note 13',
@@ -84,10 +92,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'discountPrice': '',
       'image': 'assets/images/products/redmi_note_13.jpg',
       'brand': 'Xiaomi',
-      'colors': [Color(0xFFE6C8B6), Color(0xFFC0DCE9)],
+      'colors': [const Color(0xFFE6C8B6), const Color(0xFFC0DCE9)],
       'storage': ['128 GB', '256 GB'],
-      'description':
-          'Redmi Note 13 hadir dengan layar AMOLED 120Hz yang memukau, kamera utama 108MP ultra-jernih, dan performa Snapdragon yang andal untuk multitasking.',
+      'description': 'Redmi Note 13 hadir dengan layar AMOLED 120Hz.',
     },
     {
       'name': 'Samsung Galaxy S25',
@@ -95,10 +102,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'discountPrice': '',
       'image': 'assets/images/products/samsung_s25.jpg',
       'brand': 'Samsung',
-      'colors': [Color(0xFF1F2A44), Color(0xFFDAE5EB)],
+      'colors': [const Color(0xFF1F2A44), const Color(0xFFDAE5EB)],
       'storage': ['256 GB', '512 GB'],
-      'description':
-          'Galaxy S25 dengan layar Dynamic AMOLED 2X 120Hz, kamera belakang canggih, dan baterai tahan lama yang mendukung pengisian cepat serta nirkabel.',
+      'description': 'Galaxy S25 dengan layar Dynamic AMOLED 2X.',
     },
     {
       'name': 'Google Pixel 9 Pro',
@@ -106,10 +112,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'discountPrice': '',
       'image': 'assets/images/products/pixel_9.jpg',
       'brand': 'Google',
-      'colors': [Color(0xFFF5F5F5), Color(0xFF3C4043)],
+      'colors': [const Color(0xFFF5F5F5), const Color(0xFF3C4043)],
       'storage': ['128 GB', '256 GB', '512 GB'],
-      'description':
-          'Pixel 9 Pro dengan kamera canggih, layar LTPO OLED 120Hz, dan chip Tensor G3 untuk performa optimal serta fitur AI terbaru dari Google.',
+      'description': 'Pixel 9 Pro dengan kamera canggih.',
     },
     {
       'name': 'Huawei Pura 80',
@@ -117,10 +122,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       'discountPrice': '',
       'image': 'assets/images/products/huawei_pura.jpg',
       'brand': 'Huawei',
-      'colors': [Color(0xFF000000), Color(0xFF6B4E3D)],
+      'colors': [const Color(0xFF000000), const Color(0xFF6B4E3D)],
       'storage': ['256 GB', '512 GB'],
-      'description':
-          'Huawei Pura 80 dengan layar OLED 90Hz, kamera belakang ganda 50MP, dan baterai tahan lama yang mendukung pengisian cepat 22.5W.',
+      'description': 'Huawei Pura 80 dengan layar OLED 90Hz.',
     },
   ];
 
@@ -130,14 +134,25 @@ class _ProductsScreenState extends State<ProductsScreen> {
     return 'Rp $str';
   }
 
-  // ==================== LOGIC FILTERING ====================
+  // ==================== LOGIC FILTERING (UPDATED) ====================
   List<Map<String, dynamic>> get _filteredProducts {
     List<Map<String, dynamic>> results = List.from(_allProducts);
 
-    if (_selectedBrands.isNotEmpty) {
-      results =
-          results.where((prod) => _selectedBrands.contains(prod['brand'])).toList();
+    // 1. Filter Search Text
+    // Kita ambil text dari _searchController sekarang
+    if (_searchController.text.isNotEmpty) {
+      final query = _searchController.text.toLowerCase();
+      results = results.where((prod) => 
+        prod['name'].toString().toLowerCase().contains(query)
+      ).toList();
     }
+
+    // 2. Filter Brand
+    if (_selectedBrands.isNotEmpty) {
+      results = results.where((prod) => _selectedBrands.contains(prod['brand'])).toList();
+    }
+
+    // 3. Filter Harga
     if (_isPriceFilterActive) {
       results = results.where((prod) {
         int price = prod['price'];
@@ -146,6 +161,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       }).toList();
     }
 
+    // 4. Sorting
     if (_selectedSortOption == 'Sesuai Nama') {
       results.sort((a, b) => a['name'].compareTo(b['name']));
     } else if (_selectedSortOption == 'Harga Tertinggi') {
@@ -160,7 +176,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   // ==================== DIALOGS ====================
-
   void _showSortDialog() {
     showDialog(
       context: context,
@@ -174,34 +189,22 @@ class _ProductsScreenState extends State<ProductsScreen> {
               children: [
                 _buildDialogHeader('Urutkan'),
                 const SizedBox(height: 10),
-                _buildRadioItem(
-                    'Sesuai Nama',
-                    _selectedSortOption,
-                    (val) {
-                      setState(() => _selectedSortOption = val);
-                      Navigator.pop(context);
-                    }),
-                _buildRadioItem(
-                    'Terbaru',
-                    _selectedSortOption,
-                    (val) {
-                      setState(() => _selectedSortOption = val);
-                      Navigator.pop(context);
-                    }),
-                _buildRadioItem(
-                    'Harga Tertinggi',
-                    _selectedSortOption,
-                    (val) {
-                      setState(() => _selectedSortOption = val);
-                      Navigator.pop(context);
-                    }),
-                _buildRadioItem(
-                    'Harga Terendah',
-                    _selectedSortOption,
-                    (val) {
-                      setState(() => _selectedSortOption = val);
-                      Navigator.pop(context);
-                    }),
+                _buildRadioItem('Sesuai Nama', _selectedSortOption, (val) {
+                  setState(() => _selectedSortOption = val);
+                  Navigator.pop(context);
+                }),
+                _buildRadioItem('Terbaru', _selectedSortOption, (val) {
+                  setState(() => _selectedSortOption = val);
+                  Navigator.pop(context);
+                }),
+                _buildRadioItem('Harga Tertinggi', _selectedSortOption, (val) {
+                  setState(() => _selectedSortOption = val);
+                  Navigator.pop(context);
+                }),
+                _buildRadioItem('Harga Terendah', _selectedSortOption, (val) {
+                  setState(() => _selectedSortOption = val);
+                  Navigator.pop(context);
+                }),
               ],
             ),
           ),
@@ -352,247 +355,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 
-  // ==================== BUILD UI ====================
-  @override
-  Widget build(BuildContext context) {
-    const orange = Color(0xFFFF6B35);
-    const darkBar = Color(0xFF262626);
-    const lightGrey = Color(0xFFE3E3E3);
-    bool isSortActive = _selectedSortOption != 'Sesuai Nama';
-    bool isBrandActive = _selectedBrands.isNotEmpty;
-    bool isPriceActive = _isPriceFilterActive;
-
-    return Scaffold(
-      backgroundColor: lightGrey,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // ==================== HEADER ====================
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: darkBar,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  // Back Button
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const CircleAvatar(
-                      backgroundColor: orange,
-                      radius: 18,
-                      child:
-                          Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-
-                  // Search Bar (Style Home)
-                  Expanded(
-                    child: Container(
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF3EA),
-                        borderRadius: BorderRadius.circular(26),
-                      ),
-                      child: const TextField(
-                        style: TextStyle(fontSize: 13, color: Colors.black87),
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.search,
-                              color: Colors.black87, size: 22),
-                          hintText: 'Search Something Here...',
-                          hintStyle: TextStyle(
-                              color: orange,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500),
-                          border: InputBorder.none,
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-
-                  // Profile Icon
-                  GestureDetector(
-                    onTap: () {
-                      final authProvider =
-                          Provider.of<AuthProvider>(context, listen: false);
-                      if (authProvider.isLoggedIn) {
-                        Navigator.pushNamed(context, '/profile');
-                      } else {
-                        Navigator.pushNamed(context, '/login');
-                      }
-                    },
-                    child: Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: orange, width: 2),
-                      ),
-                      child: const Icon(Icons.person_outline,
-                          color: orange, size: 20),
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  // Cart Icon
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/cart');
-                    },
-                    child: const Icon(Icons.shopping_cart_outlined,
-                        color: orange, size: 26),
-                  ),
-                ],
-              ),
-            ),
-
-            // ==================== CONTENT ====================
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Container(
-                        color: Colors.black,
-                        child: Image.asset('assets/images/iphone_pro_3.jpg',
-                            fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => const Center(
-                                child: Icon(Icons.image, color: Colors.grey))),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('Semua Produk Smartphone',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87)),
-                    ),
-                    const SizedBox(height: 10),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          _buildFilterChip(
-                              label: 'Urutkan',
-                              isActive: isSortActive,
-                              onTap: _showSortDialog),
-                          _buildFilterChip(
-                              label: 'Harga',
-                              isActive: isPriceActive,
-                              onTap: _showPriceDialog),
-                          _buildFilterChip(
-                              label: 'Brand',
-                              isActive: isBrandActive,
-                              onTap: _showBrandDialog),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _filteredProducts.isEmpty
-                          ? const Center(
-                              child: Padding(
-                              padding: EdgeInsets.all(20.0),
-                              child: Text("Tidak ada produk yang cocok."),
-                            ))
-                          : GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _filteredProducts.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.62,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                              ),
-                              itemBuilder: (context, index) {
-                                return _buildProductCard(
-                                    _filteredProducts[index]);
-                              },
-                            ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-
-      // BOTTOM NAV
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: darkBar,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: BottomNavigationBar(
-            backgroundColor: Colors.transparent,
-            selectedItemColor: orange,
-            unselectedItemColor: Colors.white,
-            currentIndex: _selectedBottomNavIndex,
-            type: BottomNavigationBarType.fixed,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(
-                  icon: CircleAvatar(
-                    radius: 14,
-                    backgroundColor: orange,
-                    child: Icon(Icons.people_alt_rounded,
-                        size: 18, color: Colors.white),
-                  ),
-                  label: 'Produk'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_cart_outlined), label: 'Keranjang'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline), label: 'Profile'),
-            ],
-            onTap: (index) {
-              setState(() {
-                _selectedBottomNavIndex = index;
-              });
-              if (index == 0) Navigator.pushReplacementNamed(context, '/home');
-              if (index == 2) Navigator.pushNamed(context, '/cart');
-              if (index == 3) {
-                final authProvider =
-                    Provider.of<AuthProvider>(context, listen: false);
-                if (authProvider.isLoggedIn) {
-                  Navigator.pushNamed(context, '/profile');
-                } else {
-                  Navigator.pushNamed(context, '/login');
-                }
-              }
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ==================== HELPER WIDGETS ====================
-
   Widget _buildDialogHeader(String title) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -661,11 +423,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Widget _buildProductCard(Map<String, dynamic> product) {
-    List<Color> colors = [];
-    if (product['colors'] != null) {
-      colors = List<Color>.from(product['colors']);
-    }
-
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -681,7 +438,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 8,
                 offset: const Offset(2, 4))
           ],
@@ -723,56 +480,251 @@ class _ProductsScreenState extends State<ProductsScreen> {
                           fontWeight: FontWeight.bold,
                           color: Colors.black)),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                          children: colors
-                              .take(3)
-                              .map((c) => Container(
-                                    margin: const EdgeInsets.only(right: 4),
-                                    width: 12,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                        color: c,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                            color: Colors.grey.shade300)),
-                                  ))
-                              .toList()),
-                      // Tombol Cart Kecil
-                      GestureDetector(
-                        onTap: () {
-                          // Logika Add to Cart Simple
-                          globalCartItems.add(CartItem(
-                            name: product['name'],
-                            price: product['price'],
-                            image: product['image'],
-                            variant: "Default",
-                          ));
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content:
-                                Text("${product['name']} masuk keranjang!"),
-                            backgroundColor: const Color(0xFF262626),
-                            duration: const Duration(milliseconds: 1000),
-                            action: SnackBarAction(
-                              label: 'LIHAT',
-                              textColor: const Color(0xFFFF6B35),
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/cart');
-                              },
-                            ),
-                          ));
-                        },
-                        child: const Icon(Icons.shopping_cart_outlined,
-                            size: 20, color: Color(0xFFFF6B35)),
-                      ),
-                    ],
-                  ),
+                  
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF6B35),
+                          padding: const EdgeInsets.symmetric(vertical: 8)),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductDetailScreen(product: product),
+                          ),
+                        );
+                      },
+                      child: const Text('Lihat Detail',
+                          style: TextStyle(color: Colors.white, fontSize: 11)),
+                    ),
+                  )
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    const orange = Color(0xFFFF6B35);
+    const darkBar = Color(0xFF262626);
+    const lightGrey = Color(0xFFE3E3E3);
+    bool isSortActive = _selectedSortOption != 'Sesuai Nama';
+    bool isBrandActive = _selectedBrands.isNotEmpty;
+    bool isPriceActive = _isPriceFilterActive;
+
+    return Scaffold(
+      backgroundColor: lightGrey,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // HEADER
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: darkBar,
+                borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(18),
+                    bottomRight: Radius.circular(18)),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const CircleAvatar(
+                      backgroundColor: orange,
+                      radius: 18,
+                      child: Icon(Icons.arrow_back,
+                          color: Colors.white, size: 20),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  
+                  // SEARCH BAR YANG BISA DIKETIK
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3EA),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: TextField(
+                        controller: _searchController, // <-- CONTROLLER DISINI
+                        onChanged: (val) {
+                           setState(() {}); // Trigger rebuild untuk filter real-time
+                        },
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.search,
+                              color: Colors.black87, size: 20),
+                          hintText: 'Cari Produk...',
+                          hintStyle: TextStyle(color: orange, fontSize: 12),
+                          border: InputBorder.none,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 8),
+                          // Tombol hapus text (X)
+                          suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, color: Colors.grey, size: 18),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                  });
+                                },
+                              )
+                            : null
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, '/cart'),
+                    child: const Icon(Icons.shopping_cart,
+                        color: orange, size: 24),
+                  ),
+                ],
+              ),
+            ),
+
+            // CONTENT (HASIL SEARCH / PRODUK)
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Jika sedang mencari, sembunyikan banner & filter brand biar fokus
+                    if (_searchController.text.isEmpty) ...[
+                        AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: Container(
+                            color: Colors.black,
+                            child: Image.asset(
+                                'assets/images/iphone_pro_3.jpg',
+                                fit: BoxFit.cover,
+                                errorBuilder: (c, e, s) => const Center(
+                                    child:
+                                        Icon(Icons.image, color: Colors.grey))),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                    ],
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Text(
+                          _searchController.text.isNotEmpty
+                            ? 'Hasil Pencarian: "${_searchController.text}"'
+                            : 'Semua Produk Smartphone',
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87)),
+                    ),
+                    
+                    // Filter Chips
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          _buildFilterChip(
+                              label: 'Urutkan',
+                              isActive: isSortActive,
+                              onTap: _showSortDialog),
+                          _buildFilterChip(
+                              label: 'Harga',
+                              isActive: isPriceActive,
+                              onTap: _showPriceDialog),
+                          _buildFilterChip(
+                              label: 'Brand',
+                              isActive: isBrandActive,
+                              onTap: _showBrandDialog),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // GRID HASIL
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _filteredProducts.isEmpty
+                          ? const Center(
+                              child: Padding(
+                              padding: EdgeInsets.all(40.0),
+                              child: Column(
+                                children: [
+                                  Icon(Icons.search_off, size: 48, color: Colors.grey),
+                                  SizedBox(height: 10),
+                                  Text("Produk tidak ditemukan", style: TextStyle(color: Colors.grey)),
+                                ],
+                              ),
+                            ))
+                          : GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _filteredProducts.length,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 0.62,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                              ),
+                              itemBuilder: (context, index) {
+                                return _buildProductCard(
+                                    _filteredProducts[index]);
+                              },
+                            ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // BOTTOM NAV
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: darkBar,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: BottomNavigationBar(
+            backgroundColor: Colors.transparent,
+            selectedItemColor: orange,
+            unselectedItemColor: Colors.white,
+            currentIndex: _selectedBottomNavIndex,
+            type: BottomNavigationBarType.fixed,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(
+                icon: CircleAvatar(
+                  radius: 14,
+                  backgroundColor: orange,
+                  child: Icon(Icons.people_alt_rounded,
+                      size: 18, color: Colors.white),
+                ),
+                label: 'Produk',
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.shopping_cart_outlined),
+                  label: 'Keranjang'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.person_outline), label: 'Profile'),
+            ],
+            onTap: (index) {
+              if (index == 0) Navigator.pushReplacementNamed(context, '/home');
+              if (index == 2) Navigator.pushNamed(context, '/cart');
+            },
+          ),
         ),
       ),
     );

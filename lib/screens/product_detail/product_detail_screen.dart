@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../checkout/checkout_screen.dart';
+import 'package:provider/provider.dart';
+import '../../providers/cart_provider.dart'; // Import Provider
 
 class ProductDetailScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -14,22 +15,15 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  // State untuk Pilihan
   int _selectedStorage = 0;
   int _selectedColor = 0;
   int _quantity = 1;
-  
-  // State untuk Galeri Gambar
-  int _selectedImageIndex = 0; 
+  int _selectedImageIndex = 0;
   late List<String> _productImages;
 
   @override
   void initState() {
     super.initState();
-    // LOGIKA GALERI:
-    // Jika di data 'product' nanti ada key ['images'] (list foto banyak), kita pakai itu.
-    // Jika tidak ada, kita pakai foto utama ('image') dan kita duplikasi 4 kali 
-    // supaya terlihat seperti ada galerinya (untuk keperluan UI demo).
     if (widget.product['images'] != null) {
       _productImages = List<String>.from(widget.product['images']);
     } else {
@@ -38,7 +32,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
-  // Helper format currency
+  int get _currentPrice {
+    int basePrice = widget.product['price'];
+    return basePrice + (_selectedStorage * 1000000); 
+  }
+
   String formatCurrency(dynamic amount) {
     int price = amount is int
         ? amount
@@ -65,7 +63,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ================= 1. HEADER (FIXED) =================
+            // HEADER
             Container(
               color: darkBar,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -79,33 +77,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF3EA),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const TextField(
-                        style: TextStyle(fontSize: 13, color: Colors.black),
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.search, color: Colors.black87, size: 20),
-                          hintText: 'Search Something Here...',
-                          hintStyle: TextStyle(color: orange, fontSize: 12),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 9),
-                        ),
-                      ),
-                    ),
+                  const Spacer(),
+                  const Text("Detail Produk", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, '/cart'),
+                    child: const Icon(Icons.shopping_cart, color: orange, size: 26),
                   ),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.shopping_cart, color: orange, size: 26),
                 ],
               ),
             ),
 
-            // ================= 2. KONTEN SCROLL =================
+            // KONTEN
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -117,257 +100,142 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       child: Text(
                         widget.product['name'],
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                     ),
                     
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("SKU: 821892182921", style: TextStyle(fontSize: 10, color: Colors.grey[600])),
-                              const Text("Bebas Ongkir", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black)),
-                            ],
-                          ),
-                          const Text("Stok Tersedia", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF8BC34A))),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // --- GAMBAR UTAMA (DINAMIS) ---
-                    // Gambar berubah sesuai _selectedImageIndex
                     Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      height: 320,
+                      height: 280,
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Hero(
-                          tag: widget.product['name'],
-                          // Menggunakan gambar dari List berdasarkan index yang dipilih
-                          child: Image.asset(
-                            _productImages[_selectedImageIndex], 
-                            fit: BoxFit.contain,
-                            errorBuilder: (c,e,s) => const Icon(Icons.broken_image, size: 50),
-                          ),
+                      padding: const EdgeInsets.all(16),
+                      child: Hero(
+                        tag: widget.product['name'],
+                        child: Image.asset(
+                          _productImages[_selectedImageIndex],
+                          fit: BoxFit.contain,
+                          errorBuilder: (c, e, s) => const Icon(Icons.broken_image, size: 50),
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 8),
+                    // Thumbnail
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(_productImages.length, (index) {
+                        return GestureDetector(
+                          onTap: () => setState(() => _selectedImageIndex = index),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: 50, height: 50,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: _selectedImageIndex == index ? orange : Colors.transparent, width: 2),
+                              borderRadius: BorderRadius.circular(8),
+                              image: DecorationImage(image: AssetImage(_productImages[index]), fit: BoxFit.cover)
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
 
-                    // --- THUMBNAIL STRIP (INTERAKTIF) ---
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    const SizedBox(height: 20),
+
+                    Text(
+                      formatCurrency(_currentPrice),
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Storage
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.chevron_left, size: 20, color: Colors.black54),
-                          // Generate Thumbnail dari List _productImages
-                          ...List.generate(_productImages.length, (index) {
-                            bool isSelected = _selectedImageIndex == index;
+                          const Text("Pilih Varian:", style: TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: storageOptions.asMap().entries.map((entry) {
+                              int idx = entry.key;
+                              bool isSelected = idx == _selectedStorage;
+                              return ChoiceChip(
+                                label: Text(entry.value),
+                                selected: isSelected,
+                                selectedColor: orange,
+                                labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    _selectedStorage = idx;
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Warna
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          const Text("Warna:", style: TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 10),
+                          ...colorOptions.asMap().entries.map((entry) {
+                            int idx = entry.key;
                             return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedImageIndex = index;
-                                });
-                              },
+                              onTap: () => setState(() => _selectedColor = idx),
                               child: Container(
-                                width: 40, height: 50,
-                                padding: const EdgeInsets.all(2),
+                                margin: const EdgeInsets.only(right: 12),
+                                width: 30, height: 30,
                                 decoration: BoxDecoration(
-                                  // Border Merah/Pink jika dipilih, Transparan jika tidak
-                                  border: Border.all(
-                                    color: isSelected ? Colors.pinkAccent : Colors.transparent, 
-                                    width: 1.5
-                                  ),
-                                  borderRadius: BorderRadius.circular(4)
-                                ),
-                                child: Image.asset(
-                                  _productImages[index], 
-                                  fit: BoxFit.contain
+                                  color: entry.value,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: idx == _selectedColor ? Colors.black : Colors.grey, width: 2),
                                 ),
                               ),
                             );
-                          }),
-                          const Icon(Icons.chevron_right, size: 20, color: Colors.black54),
+                          })
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
 
-                    Padding(
+                    // Quantity
+                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          formatCurrency(widget.product['price']),
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
                         children: [
-                          const Text("Warna", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: colorOptions.asMap().entries.map((entry) {
-                              int idx = entry.key;
-                              return GestureDetector(
-                                onTap: () => setState(() => _selectedColor = idx),
-                                child: Container(
-                                  margin: const EdgeInsets.only(right: 12),
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: entry.value,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.grey, width: 1),
-                                  ),
-                                  child: idx == _selectedColor 
-                                    ? const Icon(Icons.check, color: Colors.white)
-                                    : null,
-                                ),
-                              );
-                            }).toList(),
-                          ),
+                           const Text("Jumlah:", style: TextStyle(fontWeight: FontWeight.bold)),
+                           const SizedBox(width: 16),
+                           Container(
+                             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                             child: Row(
+                               children: [
+                                 IconButton(onPressed: () => setState(() => _quantity > 1 ? _quantity-- : null), icon: const Icon(Icons.remove)),
+                                 Text("$_quantity", style: const TextStyle(fontWeight: FontWeight.bold)),
+                                 IconButton(onPressed: () => setState(() => _quantity++), icon: const Icon(Icons.add)),
+                               ],
+                             ),
+                           )
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 16),
-
+                    
+                    const SizedBox(height: 20),
+                    
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Kapasitas", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
-                          const SizedBox(height: 8),
-                          Column(
-                            children: storageOptions.asMap().entries.map((entry) {
-                              int idx = entry.key;
-                              return GestureDetector(
-                                onTap: () => setState(() => _selectedStorage = idx),
-                                child: Container(
-                                  width: double.infinity,
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: idx == _selectedStorage ? Colors.black : Colors.black26,
-                                      width: idx == _selectedStorage ? 2 : 1,
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      entry.value,
-                                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          )
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Jumlah", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
-                          const SizedBox(height: 8),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.black54),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove, size: 20, color: Colors.black),
-                                  onPressed: () => setState(() => _quantity > 1 ? _quantity-- : null),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                                Text('$_quantity', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
-                                IconButton(
-                                  icon: const Icon(Icons.add, size: 20, color: Colors.black),
-                                  onPressed: () => setState(() => _quantity++),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Detail Produk", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
-                          const SizedBox(height: 8),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.product['description'] ?? "Deskripsi produk belum tersedia.", 
-                                  style: const TextStyle(fontSize: 11, color: Colors.black, height: 1.3),
-                                ),
-                                const SizedBox(height: 12),
-                                const Text("Isi Kotak:", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black)),
-                                const Text("• Unit Smartphone\n• Kabel USB-C ke USB-C\n• Buku manual dan dokumentasi lain.", 
-                                  style: TextStyle(fontSize: 11, color: Colors.black, height: 1.4)),
-                              ],
-                            ),
-                          ),
-                        ],
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                        child: Text(widget.product['description'] ?? "Tidak ada deskripsi", style: const TextStyle(fontSize: 13, height: 1.5)),
                       ),
                     ),
                   ],
@@ -375,82 +243,82 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ),
 
-            // ================= 3. BOTTOM BAR =================
+            // BOTTOM BAR
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -2))],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(
-                    formatCurrency(widget.product['price']),
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        final selectedStorageName = storageOptions[_selectedStorage];
+                        final variantName = "Warna $_selectedColor, $selectedStorageName";
+
+                        // ADD TO CART VIA PROVIDER
+                        Provider.of<CartProvider>(context, listen: false).addItem(
+                          CartItem(
+                            name: widget.product['name'],
+                            basePrice: widget.product['price'],
+                            price: _currentPrice,
+                            image: widget.product['image'],
+                            variant: variantName,
+                            selectedStorage: selectedStorageName,
+                            selectedColorName: "Warna $_selectedColor",
+                            quantity: _quantity,
+                          ),
+                        );
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text("Berhasil masuk keranjang!"),
+                            action: SnackBarAction(
+                              label: "LIHAT",
+                              onPressed: () => Navigator.pushNamed(context, '/cart'),
+                            ),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: orange,
+                        side: const BorderSide(color: orange),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text("+ Keranjang", style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.brown,
-                            side: const BorderSide(color: Colors.brown, width: 1.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final selectedStorageName = storageOptions[_selectedStorage];
+                        final variantName = "Warna $_selectedColor, $selectedStorageName";
+
+                        Provider.of<CartProvider>(context, listen: false).addItem(
+                          CartItem(
+                            name: widget.product['name'],
+                            basePrice: widget.product['price'],
+                            price: _currentPrice,
+                            image: widget.product['image'],
+                            variant: variantName,
+                            selectedStorage: selectedStorageName,
+                            selectedColorName: "Warna $_selectedColor",
+                            quantity: _quantity,
                           ),
-                          child: const Text("+ Keranjang", style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
+                        );
+                        
+                        Navigator.pushNamed(context, '/cart');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: orange,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Ambil nama warna dan kapasitas dari index yang dipilih
-                            final selectedColorName = widget.product['colors'] != null && 
-                                                      _selectedColor < widget.product['colors'].length 
-                                                      ? "Warna Pilihan $_selectedColor" // Simplifikasi karena data warna cuma Color object
-                                                      : "Default Color";
-
-                            final selectedStorageName = widget.product['storage'] != null && 
-                                                        _selectedStorage < widget.product['storage'].length
-                                                        ? widget.product['storage'][_selectedStorage]
-                                                        : "-";
-
-                            // Gabungkan varian
-                            final variantString = "$selectedStorageName, $selectedColorName";
-
-                            // Navigasi ke CheckoutScreen
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CheckoutScreen(
-                                  product: widget.product,
-                                  variant: variantString,
-                                  quantity: _quantity,
-                                ),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFE86E25), // Sesuai kode asli Anda
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          child: const Text("Beli Langsung", style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                    ],
+                      child: const Text("Beli Langsung", style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
                   ),
                 ],
               ),
