@@ -9,13 +9,13 @@ class CustomCarousel extends StatefulWidget {
   final Function(int)? onPageChanged;
 
   const CustomCarousel({
-    Key? key,
+    super.key,
     required this.items,
     this.height = 200,
     this.autoPlay = true,
     this.autoPlayInterval = const Duration(seconds: 3),
     this.onPageChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomCarousel> createState() => _CustomCarouselState();
