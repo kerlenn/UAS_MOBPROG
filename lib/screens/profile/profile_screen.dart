@@ -25,7 +25,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Controllers untuk form Ubah Kata Sandi
   final TextEditingController _passwordLamaController = TextEditingController();
   final TextEditingController _passwordBaruController = TextEditingController();
-  final TextEditingController _konfirmasiPasswordController = TextEditingController();
+  final TextEditingController _konfirmasiPasswordController =
+      TextEditingController();
 
   // State untuk show/hide password
   bool _showPasswordLama = false;
@@ -44,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _loadUserData() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.user;
-    
+
     if (user != null) {
       _namaController.text = user.username;
       _emailController.text = user.email;
@@ -68,49 +69,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // ==================== LOGOUT FUNCTION ====================
   void _handleLogout() {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Konfirmasi Logout'),
-        content: const Text('Apakah Anda yakin ingin keluar?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE53935),
-              foregroundColor: Colors.white,
+          title: const Text('Konfirmasi Logout'),
+          content: const Text('Apakah Anda yakin ingin keluar?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal'),
             ),
-            onPressed: () async {
-              final authProvider = Provider.of<AuthProvider>(context, listen: false);
-              final success = await authProvider.logout();
-              
-              if (!mounted) return;
-              
-              Navigator.pop(context); // Tutup dialog
-              
-              if (success) {
-                // Redirect ke home setelah logout
-                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Berhasil logout'),
-                    backgroundColor: Colors.green,
-                  ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFE53935),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                final authProvider = Provider.of<AuthProvider>(
+                  context,
+                  listen: false,
                 );
-              }
-            },
-            child: const Text('Logout'),
-          ),
-        ],
-      );
-    },
-  );
-}
+                final success = await authProvider.logout();
+
+                if (!mounted) return;
+
+                Navigator.pop(context); // Tutup dialog
+
+                if (success) {
+                  // Redirect ke home setelah logout
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/',
+                    (route) => false,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Berhasil logout'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
   // ==================== DIALOGS ====================
 
   void _showUbahKataSandiDialog() {
@@ -118,14 +128,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _passwordLamaController.clear();
     _passwordBaruController.clear();
     _konfirmasiPasswordController.clear();
-    
+
     showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
@@ -150,13 +162,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: const CircleAvatar(
                                 backgroundColor: Color(0xFFFF6B35),
                                 radius: 18,
-                                child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                                child: Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
                               ),
                             ),
                             Image.asset(
                               'assets/images/logo.png',
                               height: 40,
-                              errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 40),
+                              errorBuilder: (c, e, s) => const Icon(
+                                Icons.store,
+                                color: Colors.white,
+                                size: 40,
+                              ),
                             ),
                             const SizedBox(width: 36),
                           ],
@@ -167,13 +187,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const CircleAvatar(
                           radius: 40,
                           backgroundColor: Colors.white,
-                          child: Icon(Icons.lock, size: 50, color: Color(0xFFB8724D)),
+                          child: Icon(
+                            Icons.lock,
+                            size: 50,
+                            color: Color(0xFFB8724D),
+                          ),
                         ),
                         const SizedBox(height: 20),
 
                         // Title
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
@@ -181,7 +208,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: const [
-                              Icon(Icons.lock, color: Color(0xFFB8724D), size: 18),
+                              Icon(
+                                Icons.lock,
+                                color: Color(0xFFB8724D),
+                                size: 18,
+                              ),
                               SizedBox(width: 8),
                               Text(
                                 'Ubah Kata Sandi',
@@ -225,7 +256,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _showKonfirmasiPassword,
                           () {
                             setStateDialog(() {
-                              _showKonfirmasiPassword = !_showKonfirmasiPassword;
+                              _showKonfirmasiPassword =
+                                  !_showKonfirmasiPassword;
                             });
                           },
                         ),
@@ -247,25 +279,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // Validasi
                               if (_passwordLamaController.text.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Kata sandi lama harus diisi')),
+                                  const SnackBar(
+                                    content: Text(
+                                      'Kata sandi lama harus diisi',
+                                    ),
+                                  ),
                                 );
                                 return;
                               }
                               if (_passwordBaruController.text.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Kata sandi baru harus diisi')),
+                                  const SnackBar(
+                                    content: Text(
+                                      'Kata sandi baru harus diisi',
+                                    ),
+                                  ),
                                 );
                                 return;
                               }
-                              if (_passwordBaruController.text != _konfirmasiPasswordController.text) {
+                              if (_passwordBaruController.text !=
+                                  _konfirmasiPasswordController.text) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Konfirmasi kata sandi tidak cocok')),
+                                  const SnackBar(
+                                    content: Text(
+                                      'Konfirmasi kata sandi tidak cocok',
+                                    ),
+                                  ),
                                 );
                                 return;
                               }
                               if (_passwordBaruController.text.length < 6) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Kata sandi minimal 6 karakter')),
+                                  const SnackBar(
+                                    content: Text(
+                                      'Kata sandi minimal 6 karakter',
+                                    ),
+                                  ),
                                 );
                                 return;
                               }
@@ -273,10 +322,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // Logic simpan kata sandi baru (nanti connect ke API)
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Kata sandi berhasil diubah')),
+                                const SnackBar(
+                                  content: Text('Kata sandi berhasil diubah'),
+                                ),
                               );
                             },
-                            child: const Text('Simpan Perubahan', style: TextStyle(fontWeight: FontWeight.bold)),
+                            child: const Text(
+                              'Simpan Perubahan',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -294,7 +348,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            child: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.bold)),
+                            child: const Text(
+                              'Keluar',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
                       ],
@@ -314,7 +371,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
@@ -339,13 +398,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: const CircleAvatar(
                             backgroundColor: Color(0xFFFF6B35),
                             radius: 18,
-                            child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                            child: Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         ),
                         Image.asset(
                           'assets/images/logo.png',
                           height: 40,
-                          errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 40),
+                          errorBuilder: (c, e, s) => const Icon(
+                            Icons.store,
+                            color: Colors.white,
+                            size: 40,
+                          ),
                         ),
                         const SizedBox(width: 36),
                       ],
@@ -356,13 +423,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 50, color: Color(0xFFB8724D)),
+                      child: Icon(
+                        Icons.person,
+                        size: 50,
+                        color: Color(0xFFB8724D),
+                      ),
                     ),
                     const SizedBox(height: 20),
 
                     // Title
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -388,11 +462,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Form Fields
                     _buildProfileField('Nama', _namaController),
                     const SizedBox(height: 12),
-                    _buildProfileField('Jenis Kelamin', _jenisKelaminController),
+                    _buildProfileField(
+                      'Jenis Kelamin',
+                      _jenisKelaminController,
+                    ),
                     const SizedBox(height: 12),
-                    _buildProfileField('Tanggal Lahir', _tanggalLahirController),
+                    _buildProfileField(
+                      'Tanggal Lahir',
+                      _tanggalLahirController,
+                    ),
                     const SizedBox(height: 12),
-                    _buildProfileField('Nomor Telepon', _nomorTeleponController),
+                    _buildProfileField(
+                      'Nomor Telepon',
+                      _nomorTeleponController,
+                    ),
                     const SizedBox(height: 12),
                     _buildProfileField('Email', _emailController),
                     const SizedBox(height: 24),
@@ -413,10 +496,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           // Logic simpan perubahan (nanti connect ke API)
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Profil berhasil diperbarui')),
+                            const SnackBar(
+                              content: Text('Profil berhasil diperbarui'),
+                            ),
                           );
                         },
-                        child: const Text('Simpan Perubahan', style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: const Text(
+                          'Simpan Perubahan',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -434,7 +522,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: const Text(
+                          'Keluar',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
@@ -447,7 +538,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildPasswordField(String label, TextEditingController controller, bool showPassword, VoidCallback toggleShow) {
+  Widget _buildPasswordField(
+    String label,
+    TextEditingController controller,
+    bool showPassword,
+    VoidCallback toggleShow,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -470,7 +566,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             obscureText: !showPassword,
             decoration: InputDecoration(
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
               suffixIcon: IconButton(
                 icon: Icon(
                   showPassword ? Icons.visibility : Icons.visibility_off,
@@ -508,7 +607,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             controller: controller,
             decoration: const InputDecoration(
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
             ),
           ),
         ),
@@ -546,7 +648,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Image.asset(
                         'assets/images/logo.png',
                         height: 50,
-                        errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 50),
+                        errorBuilder: (c, e, s) => const Icon(
+                          Icons.store,
+                          color: Colors.white,
+                          size: 50,
+                        ),
                       ),
                       const SizedBox(height: 30),
 
@@ -554,7 +660,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const CircleAvatar(
                         radius: 50,
                         backgroundColor: Colors.white,
-                        child: Icon(Icons.person, size: 60, color: Color(0xFFB8724D)),
+                        child: Icon(
+                          Icons.person,
+                          size: 60,
+                          color: Color(0xFFB8724D),
+                        ),
                       ),
                       const SizedBox(height: 16),
 
@@ -604,8 +714,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: Icons.receipt_long,
                         label: 'Pesanan Saya',
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Fitur Pesanan Saya')),
+                          Navigator.pushNamed(
+                            context,
+                            '/pesanan',
                           );
                         },
                       ),
@@ -618,6 +729,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       const SizedBox(height: 12),
+
                       // TOMBOL LOGOUT BARU
                       _buildMenuButton(
                         icon: Icons.logout,
@@ -656,7 +768,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 maxLines: 4,
                                 decoration: const InputDecoration(
                                   hintText: 'Isi feedback Anda',
-                                  hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                  ),
                                   border: InputBorder.none,
                                   contentPadding: EdgeInsets.all(12),
                                 ),
@@ -669,7 +784,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: orange,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 10,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
@@ -677,12 +795,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 onPressed: () {
                                   if (_feedbackController.text.isNotEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Terima kasih atas feedback Anda!')),
+                                      const SnackBar(
+                                        content: Text(
+                                          'Terima kasih atas feedback Anda!',
+                                        ),
+                                      ),
                                     );
                                     _feedbackController.clear();
                                   }
                                 },
-                                child: const Text('Kirim', style: TextStyle(fontWeight: FontWeight.bold)),
+                                child: const Text(
+                                  'Kirim',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
                           ],
@@ -702,7 +827,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
               child: BottomNavigationBar(
                 backgroundColor: Colors.transparent,
                 selectedItemColor: orange,
@@ -710,9 +837,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 currentIndex: _selectedBottomNavIndex,
                 type: BottomNavigationBarType.fixed,
                 items: const [
-                  BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                  BottomNavigationBarItem(icon: Icon(Icons.people_alt_rounded), label: 'Produk'),
-                  BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Keranjang'),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.people_alt_rounded),
+                    label: 'Produk',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.shopping_cart_outlined),
+                    label: 'Keranjang',
+                  ),
                   BottomNavigationBarItem(
                     icon: CircleAvatar(
                       radius: 14,
@@ -759,8 +895,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Row(
           children: [
             Icon(
-              icon, 
-              color: isLogout ? Colors.white : const Color(0xFFB8724D), 
+              icon,
+              color: isLogout ? Colors.white : const Color(0xFFB8724D),
               size: 22,
             ),
             const SizedBox(width: 12),
