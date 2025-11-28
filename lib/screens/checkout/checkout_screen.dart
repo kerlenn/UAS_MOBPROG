@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../payment/payment_screen.dart';
+import '../../providers/order_provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -32,7 +34,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.initState();
     // Default data dummy untuk alamat (bisa diedit user)
     _nameController.text = "Yusuf Abdur";
-    _phoneController.text = "(+62) 857 1828 6519";
+    _phoneController.text = "‪(+62) 857 1828 6519‬";
     _addressController.text = "Jalan Dahlia IV Blok ## No. ##, RT.##/RW.##, Cengkareng, KOTA JAKARTA BARAT - CENGKARENG, DKI JAKARTA, ID 11720";
   }
 
@@ -326,7 +328,30 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       return;
                     }
 
-                    // 2. Tampilkan Pop-up (Dialog) Sukses
+                    // 2. Simpan ke OrderProvider
+                    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+                    
+                    // Siapkan data cart items (format sesuai yang dibutuhkan OrderProvider)
+                    final cartItems = [
+                      {
+                        'name': widget.product['name'],
+                        'price': unitPrice,
+                        'quantity': widget.quantity,
+                        'image': widget.product['image'],
+                        'brand': widget.product['brand'] ?? 'Unknown',
+                      }
+                    ];
+
+                    // Tambahkan order ke provider
+                    orderProvider.addOrder(
+                      cartItems: cartItems,
+                      paymentMethod: 'Transfer Bank $_selectedBank',
+                      shippingAddress: _addressController.text,
+                      recipientName: _nameController.text,
+                      recipientPhone: _phoneController.text,
+                    );
+
+                    // 3. Tampilkan Pop-up (Dialog) Sukses
                     showDialog(
                       context: context,
                       barrierDismissible: false, // User tidak bisa tutup paksa dengan klik luar
