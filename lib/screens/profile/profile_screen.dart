@@ -89,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               final authProvider = Provider.of<AuthProvider>(context, listen: false);
               final success = await authProvider.logout();
               
-              if (!mounted) return;
+              if (!context.mounted) return;
               
               Navigator.pop(context); // Tutup dialog
               
@@ -631,7 +631,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Column(
