@@ -421,7 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushNamed(context, '/brands');
+                              Navigator.pushNamed(context, '/products');
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -556,7 +556,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             child: Container(
                               decoration: BoxDecoration(
-                                color: darkBar,
+                                color: const Color.fromARGB(255, 249, 245, 245),
                                 borderRadius: BorderRadius.circular(22),
                                 border: Border.all(
                                   color: Colors.white,
@@ -581,7 +581,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Container(
                                       height: 130,
                                       width: double.infinity,
-                                      color: Colors.white,
+                                      color: const Color.fromARGB(255, 243, 243, 243),
                                       child: Image.asset(
                                         product['image']!,
                                         fit: BoxFit.contain,
@@ -611,7 +611,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           style: const TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
-                                            color: Colors.white,
+                                            color: Color.fromARGB(255, 25, 1, 1),
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -623,7 +623,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             product['price']!,
                                             style: TextStyle(
                                               fontSize: 11,
-                                              color: Colors.grey[400],
+                                              color: const Color.fromARGB(255, 33, 2, 2),
                                               decoration:
                                                   TextDecoration.lineThrough,
                                             ),
@@ -635,7 +635,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                            color: Color.fromARGB(255, 8, 0, 0),
                                           ),
                                         ),
                                         const SizedBox(height: 8),
