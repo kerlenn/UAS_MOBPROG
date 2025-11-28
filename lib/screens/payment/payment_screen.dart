@@ -108,7 +108,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF3EA), // Orange muda
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: orange.withOpacity(0.3)),
+                border: Border.all(color: orange.withValues(alpha: 0.3)),
               ),
               child: Column(
                 children: [
@@ -283,7 +283,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
