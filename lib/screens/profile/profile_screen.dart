@@ -85,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.pop(context);
                 
                 if (success) {
-                  Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Berhasil logout'), backgroundColor: Colors.green),
                   );
