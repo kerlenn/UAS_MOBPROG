@@ -26,10 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _showPasswordBaru = false;
   bool _showKonfirmasiPassword = false;
 
-  // KEY UNTUK VALIDASI FORM PROFIL
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  
-  // KEY UNTUK VALIDASI FORM PASSWORD (BARU)
   final GlobalKey<FormState> _passwordFormKey = GlobalKey<FormState>();
 
   @override
@@ -65,7 +62,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  // --- LOGIC LOGOUT ---
   void _handleLogout() {
     showDialog(
       context: context,
@@ -113,7 +109,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- DIALOG UBAH PROFIL DENGAN VALIDASI ---
   void _showUbahProfilDialog() {
     final user = Provider.of<AuthProvider>(context, listen: false).user;
     if (user != null) {
@@ -305,7 +300,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- WIDGET INPUT PROFIL ---
   Widget _buildProfileField(
     String label, 
     TextEditingController controller, 
@@ -346,7 +340,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- DIALOG UBAH PASSWORD DENGAN VALIDASI ---
   void _showUbahKataSandiDialog() {
     _passwordLamaController.clear();
     _passwordBaruController.clear();
@@ -373,7 +366,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: SingleChildScrollView(
-                    // BUNGKUS DENGAN FORM UNTUK VALIDASI PASSWORD
                     child: Form(
                       key: _passwordFormKey,
                       child: Column(
@@ -447,8 +439,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          
-                          // --- VALIDASI PASSWORD LAMA ---
+
                           _buildPasswordField(
                             'Kata Sandi Lama',
                             _passwordLamaController,
@@ -460,15 +451,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'Kata sandi lama wajib diisi';
                               }
-                              // CATATAN: Pengecekan apakah password lama "benar" atau "salah"
-                              // idealnya dilakukan via API ke server.
-                              // Di sini kita hanya validasi input tidak boleh kosong.
                               return null;
                             }
                           ),
                           const SizedBox(height: 12),
-                          
-                          // --- VALIDASI PASSWORD BARU (MIN 6 KARAKTER) ---
+
                           _buildPasswordField(
                             'Kata Sandi Baru',
                             _passwordBaruController,
@@ -487,8 +474,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             }
                           ),
                           const SizedBox(height: 12),
-                          
-                          // --- VALIDASI KONFIRMASI PASSWORD (HARUS SAMA) ---
+
                           _buildPasswordField(
                             'Konfirmasi Kata Sandi Baru',
                             _konfirmasiPasswordController,
@@ -521,9 +507,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               onPressed: () {
-                                // JALANKAN VALIDASI PASSWORD
                                 if (_passwordFormKey.currentState!.validate()) {
-                                  // Jika valid, tutup dialog & tampilkan pesan sukses
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -531,9 +515,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       backgroundColor: Colors.green,
                                     ),
                                   );
-                                  
-                                  // Disini kamu bisa panggil API update password jika ada
-                                  // Provider.of<AuthProvider>(context, listen: false).updatePassword(...)
                                 }
                               },
                               child: const Text(
@@ -555,13 +536,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- WIDGET PASSWORD DENGAN VALIDASI ---
   Widget _buildPasswordField(
     String label,
     TextEditingController controller,
     bool showPassword,
     VoidCallback toggleShow,
-    {String? Function(String?)? validator} // Tambahan parameter validator
+    {String? Function(String?)? validator}
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -575,7 +555,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         const SizedBox(height: 6),
-        // GANTI KE TextFormField UNTUK ERROR MESSAGE
         TextFormField(
           controller: controller,
           obscureText: !showPassword,
