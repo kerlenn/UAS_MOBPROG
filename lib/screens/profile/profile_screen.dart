@@ -328,7 +328,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 12),
                       _buildMenuButton(icon: Icons.lock, label: 'Ubah Kata Sandi', onTap: _showUbahKataSandiDialog),
                       const SizedBox(height: 12),
-                      _buildMenuButton(icon: Icons.receipt_long, label: 'Pesanan Saya', onTap: () { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur Pesanan Saya'))); }),
+                      _buildMenuButton(icon: Icons.receipt_long, label: 'Pesanan Saya', onTap: () { Navigator.pushNamed(context, '/pesanan');},), 
                       const SizedBox(height: 12),
                       _buildMenuButton(icon: Icons.shopping_cart, label: 'Keranjang Saya', onTap: () { Navigator.pushNamed(context, '/cart'); }),
                       const SizedBox(height: 12),
