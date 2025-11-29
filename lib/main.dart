@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 
 // Providers
 import 'providers/auth_provider.dart';
-import 'providers/cart_provider.dart'; // Punya Kita
-import 'providers/order_provider.dart'; // Punya Teman (Pastikan file ini ada)
+import 'providers/cart_provider.dart';
+import 'providers/order_provider.dart';
 
 // Screens
 import 'screens/home/home.dart';
@@ -13,7 +13,7 @@ import 'screens/keranjang_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/signUp/signup_screen.dart'; 
-import 'screens/pesanan/pesanan_screen.dart'; // Punya Teman (Pastikan file ini ada)
+import 'screens/pesanan/pesanan_screen.dart';
 
 void main() {
   runApp(const MyAppRoot());
@@ -81,7 +81,6 @@ class _MyAppState extends State<MyApp> {
         },
       ),
 
-      // Gabungan Route Kita + Route Teman
       routes: {
         '/home': (context) => const HomeScreen(),
         '/products': (context) => const ProductsScreen(),
@@ -89,7 +88,7 @@ class _MyAppState extends State<MyApp> {
         '/profile': (context) => const ProfileScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const SignupScreen(),
-        '/pesanan': (context) => const PesananScreen(), // Route Pesanan
+        '/pesanan': (context) => const PesananScreen(),
       },
 
       onUnknownRoute: (settings) {

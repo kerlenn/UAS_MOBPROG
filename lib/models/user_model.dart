@@ -3,7 +3,7 @@ class User {
   final String username;
   final String email;
   final String phone;
-  final String? token; // untuk simpan token dari API nanti
+  final String? token;
 
   User({
     this.id,
