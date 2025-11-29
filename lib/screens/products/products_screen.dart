@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // <--- Import Provider
+import '../../providers/auth_provider.dart'; // <--- Import AuthProvider
 import '../product_detail/product_detail_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   final String? initialBrand;
-  final String? initialSearchQuery; // Parameter untuk menerima teks pencarian
+  final String? initialSearchQuery;
 
   const ProductsScreen({
     super.key,
@@ -19,8 +21,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   // Controller untuk Search Bar
   late TextEditingController _searchController;
 
-  // ignore: unused_field
-  final int _selectedBottomNavIndex = 1;
+  final int _selectedBottomNavIndex = 1; // Index Produk = 1
 
   // ==================== STATE FILTER ====================
   String _selectedSortOption = 'Sesuai Nama';
@@ -39,10 +40,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
   void initState() {
     super.initState();
     
-    // 1. Inisialisasi Search Controller dengan teks dari Home (jika ada)
     _searchController = TextEditingController(text: widget.initialSearchQuery ?? '');
 
-    // 2. Inisialisasi Brand Filter dengan brand dari Home (jika ada)
     if (widget.initialBrand != null) {
       _selectedBrands.add(widget.initialBrand!);
     }
@@ -134,12 +133,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
     return 'Rp $str';
   }
 
-  // ==================== LOGIC FILTERING (UPDATED) ====================
   List<Map<String, dynamic>> get _filteredProducts {
     List<Map<String, dynamic>> results = List.from(_allProducts);
 
-    // 1. Filter Search Text
-    // Kita ambil text dari _searchController sekarang
     if (_searchController.text.isNotEmpty) {
       final query = _searchController.text.toLowerCase();
       results = results.where((prod) => 
@@ -147,12 +143,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
       ).toList();
     }
 
-    // 2. Filter Brand
     if (_selectedBrands.isNotEmpty) {
       results = results.where((prod) => _selectedBrands.contains(prod['brand'])).toList();
     }
 
-    // 3. Filter Harga
     if (_isPriceFilterActive) {
       results = results.where((prod) {
         int price = prod['price'];
@@ -161,7 +155,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
       }).toList();
     }
 
-    // 4. Sorting
     if (_selectedSortOption == 'Sesuai Nama') {
       results.sort((a, b) => a['name'].compareTo(b['name']));
     } else if (_selectedSortOption == 'Harga Tertinggi') {
@@ -544,7 +537,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   ),
                   const SizedBox(width: 10),
                   
-                  // SEARCH BAR YANG BISA DIKETIK
                   Expanded(
                     child: Container(
                       height: 40,
@@ -553,9 +545,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: TextField(
-                        controller: _searchController, // <-- CONTROLLER DISINI
+                        controller: _searchController,
                         onChanged: (val) {
-                           setState(() {}); // Trigger rebuild untuk filter real-time
+                           setState(() {});
                         },
                         decoration: InputDecoration(
                           prefixIcon: Icon(Icons.search,
@@ -565,7 +557,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                           border: InputBorder.none,
                           contentPadding:
                               const EdgeInsets.symmetric(vertical: 8),
-                          // Tombol hapus text (X)
                           suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear, color: Colors.grey, size: 18),
@@ -590,13 +581,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
               ),
             ),
 
-            // CONTENT (HASIL SEARCH / PRODUK)
+            // CONTENT
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Jika sedang mencari, sembunyikan banner & filter brand biar fokus
+                    // Banner
                     if (_searchController.text.isEmpty) ...[
                         AspectRatio(
                           aspectRatio: 16 / 9,
@@ -625,7 +616,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                               color: Colors.black87)),
                     ),
                     
-                    // Filter Chips
+                    // Filter
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -648,7 +639,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // GRID HASIL
+                    // GRID
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: _filteredProducts.isEmpty
@@ -689,7 +680,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
         ),
       ),
 
-      // BOTTOM NAV
+      // BOTTOM NAV (PERBAIKAN NAVIGASI PROFIL)
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: darkBar,
@@ -705,24 +696,22 @@ class _ProductsScreenState extends State<ProductsScreen> {
             type: BottomNavigationBarType.fixed,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(
-                icon: CircleAvatar(
-                  radius: 14,
-                  backgroundColor: orange,
-                  child: Icon(Icons.people_alt_rounded,
-                      size: 18, color: Colors.white),
-                ),
-                label: 'Produk',
-              ),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_cart_outlined),
-                  label: 'Keranjang'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline), label: 'Profile'),
+              BottomNavigationBarItem(icon: Icon(Icons.people_alt_rounded), label: 'Produk'),
+              BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Keranjang'),
+              BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
             ],
             onTap: (index) {
               if (index == 0) Navigator.pushReplacementNamed(context, '/home');
               if (index == 2) Navigator.pushNamed(context, '/cart');
+              if (index == 3) {
+                 // LOGIKA NAVIGASI PROFIL YANG BENAR
+                 final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                 if (authProvider.isLoggedIn) {
+                    Navigator.pushNamed(context, '/profile');
+                 } else {
+                    Navigator.pushNamed(context, '/login');
+                 }
+              }
             },
           ),
         ),
