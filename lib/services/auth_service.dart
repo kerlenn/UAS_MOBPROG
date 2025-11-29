@@ -46,11 +46,9 @@ class AuthService {
     return isLoggedIn;
   }
 
-  // Logout - hapus data user
   Future<bool> logout() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('user_data');
       await prefs.setBool('is_logged_in', false);
       print('✅ User logged out');
       return true;
@@ -60,37 +58,41 @@ class AuthService {
     }
   }
 
-  // LOGIN DUMMY (FIXED)
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       await Future.delayed(const Duration(seconds: 1));
 
-      // ← PERBAIKAN: Ambil username dari email (bagian sebelum @)
-      String username = email.split(
-        '@',
-      )[0]; // Contoh: "yusuf@gmail.com" → "yusuf"
-      username =
-          username[0].toUpperCase() + username.substring(1); // Capitalize
+      final existingUser = await getUserLocally();
 
-      final dummyUser = User(
-        id: '1',
-        username: username, // ← Sekarang pakai username dari email
-        email: email, // ← Email dari input
-        phone: '081234567890', // ← Bisa di-custom nanti
-        token: 'dummy_token_12345',
-      );
+      if (existingUser != null && existingUser.email == email) {
+        print('✅ Login with existing user: ${existingUser.username}');
+        await saveUserLocally(
+          existingUser,
+        );
+        return {'success': true, 'user': existingUser};
+      } else {
+        String username = email.split('@')[0];
+        username = username[0].toUpperCase() + username.substring(1);
 
-      await saveUserLocally(dummyUser);
-      print('✅ Login success: ${dummyUser.username}');
+        final newUser = User(
+          id: '1',
+          username: username,
+          email: email,
+          phone: '081234567890',
+          token: 'dummy_token_12345',
+        );
 
-      return {'success': true, 'user': dummyUser};
+        await saveUserLocally(newUser);
+        print('✅ Login with new user: ${newUser.username}');
+
+        return {'success': true, 'user': newUser};
+      }
     } catch (e) {
       print('❌ Login error: $e');
       return {'success': false, 'message': 'Terjadi kesalahan: $e'};
     }
   }
 
-  // REGISTER DUMMY (Sudah OK, pakai input user)
   Future<Map<String, dynamic>> register({
     required String username,
     required String email,
@@ -102,7 +104,7 @@ class AuthService {
 
       final dummyUser = User(
         id: '2',
-        username: username, // ← Ini sudah benar, pakai input user
+        username: username,
         email: email,
         phone: phone,
         token: 'dummy_token_67890',

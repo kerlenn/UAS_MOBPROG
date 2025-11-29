@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/auth_service.dart';
+import '../../models/user_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -24,10 +26,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _showPasswordBaru = false;
   bool _showKonfirmasiPassword = false;
 
+  // KEY UNTUK VALIDASI FORM PROFIL
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  
+  // KEY UNTUK VALIDASI FORM PASSWORD (BARU)
+  final GlobalKey<FormState> _passwordFormKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
-    // Load user data setelah widget di-build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadUserData();
     });
@@ -36,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _loadUserData() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.user;
-    
+
     if (user != null) {
       setState(() {
         _namaController.text = user.username;
@@ -58,6 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
+  // --- LOGIC LOGOUT ---
   void _handleLogout() {
     showDialog(
       context: context,
@@ -79,15 +87,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () async {
                 final authProvider = Provider.of<AuthProvider>(context, listen: false);
                 final success = await authProvider.logout();
-                
+
                 if (!context.mounted) return;
-                
                 Navigator.pop(context);
-                
+
                 if (success) {
-                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/home',
+                    (route) => false,
+                  );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Berhasil logout'), backgroundColor: Colors.green),
+                    const SnackBar(
+                      content: Text('Berhasil logout'),
+                      backgroundColor: Colors.green,
+                    ),
                   );
                 }
               },
@@ -99,118 +113,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showUbahKataSandiDialog() {
-    _passwordLamaController.clear();
-    _passwordBaruController.clear();
-    _konfirmasiPasswordController.clear();
-    
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFFB8724D), Color(0xFF6B3E2E)],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: const CircleAvatar(
-                                backgroundColor: Color(0xFFFF6B35),
-                                radius: 18,
-                                child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                              ),
-                            ),
-                            Image.asset(
-                              'assets/images/logo.png',
-                              height: 40,
-                              errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 40),
-                            ),
-                            const SizedBox(width: 36),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        const CircleAvatar(
-                          radius: 40,
-                          backgroundColor: Colors.white,
-                          child: Icon(Icons.lock, size: 50, color: Color(0xFFB8724D)),
-                        ),
-                        const SizedBox(height: 20),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.lock, color: Color(0xFFB8724D), size: 18),
-                              SizedBox(width: 8),
-                              Text('Ubah Kata Sandi', style: TextStyle(color: Color(0xFFB8724D), fontWeight: FontWeight.bold, fontSize: 16)),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        _buildPasswordField('Kata Sandi Lama', _passwordLamaController, _showPasswordLama, () => setStateDialog(() => _showPasswordLama = !_showPasswordLama)),
-                        const SizedBox(height: 12),
-                        _buildPasswordField('Kata Sandi Baru', _passwordBaruController, _showPasswordBaru, () => setStateDialog(() => _showPasswordBaru = !_showPasswordBaru)),
-                        const SizedBox(height: 12),
-                        _buildPasswordField('Konfirmasi Kata Sandi Baru', _konfirmasiPasswordController, _showKonfirmasiPassword, () => setStateDialog(() => _showKonfirmasiPassword = !_showKonfirmasiPassword)),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF6B35),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                            ),
-                            onPressed: () {
-                              if (_passwordLamaController.text.isEmpty || _passwordBaruController.text.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Harap isi semua kolom')),
-                                );
-                                return;
-                              }
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Kata sandi berhasil diubah')),
-                              );
-                            },
-                            child: const Text('Simpan Perubahan', style: TextStyle(fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
+  // --- DIALOG UBAH PROFIL DENGAN VALIDASI ---
   void _showUbahProfilDialog() {
+    final user = Provider.of<AuthProvider>(context, listen: false).user;
+    if (user != null) {
+      _namaController.text = user.username;
+      _emailController.text = user.email;
+      _nomorTeleponController.text = user.phone;
+    }
+
     showDialog(
       context: context,
       builder: (context) {
@@ -228,78 +139,163 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: const CircleAvatar(
-                            backgroundColor: Color(0xFFFF6B35),
-                            radius: 18,
-                            child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: const CircleAvatar(
+                              backgroundColor: Color(0xFFFF6B35),
+                              radius: 18,
+                              child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                            ),
                           ),
-                        ),
-                        Image.asset(
-                          'assets/images/logo.png',
-                          height: 40,
-                          errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 40),
-                        ),
-                        const SizedBox(width: 36),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    const CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 50, color: Color(0xFFB8724D)),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.edit, color: Color(0xFFB8724D), size: 18),
-                          SizedBox(width: 8),
-                          Text('Ubah Profil', style: TextStyle(color: Color(0xFFB8724D), fontWeight: FontWeight.bold, fontSize: 16)),
+                          Image.asset(
+                            'assets/images/logo.png',
+                            height: 40,
+                            errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 40),
+                          ),
+                          const SizedBox(width: 36),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    _buildProfileField('Nama', _namaController),
-                    const SizedBox(height: 12),
-                    _buildProfileField('Email', _emailController),
-                    const SizedBox(height: 12),
-                    _buildProfileField('Nomor Telepon', _nomorTeleponController),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF6B35),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                          });
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Profil berhasil diperbarui')),
-                          );
-                        },
-                        child: const Text('Simpan Perubahan', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 20),
+                      const CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person, size: 50, color: Color(0xFFB8724D)),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(Icons.edit, color: Color(0xFFB8724D), size: 18),
+                            SizedBox(width: 8),
+                            Text(
+                              'Ubah Profil',
+                              style: TextStyle(
+                                color: Color(0xFFB8724D),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      _buildProfileField(
+                        'Nama',
+                        _namaController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Nama tidak boleh kosong';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildProfileField(
+                        'Email',
+                        _emailController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Email tidak boleh kosong';
+                          }
+                          if (!value.contains('@') || !value.contains('.')) {
+                            return 'Format email tidak valid';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildProfileField(
+                        'Nomor Telepon',
+                        _nomorTeleponController,
+                        isNumber: true,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Nomor telepon wajib diisi';
+                          }
+                          if (value.length < 10) {
+                            return 'Minimal 10 angka';
+                          }
+                          if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                            return 'Hanya boleh angka';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFF6B35),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                          ),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                              final currentUser = authProvider.user;
+
+                              if (currentUser != null) {
+                                final updatedUser = User(
+                                  id: currentUser.id,
+                                  username: _namaController.text.trim(),
+                                  email: _emailController.text.trim(),
+                                  phone: _nomorTeleponController.text.trim(),
+                                  token: currentUser.token,
+                                );
+
+                                final authService = AuthService();
+                                final success = await authService.saveUserLocally(updatedUser);
+
+                                if (success) {
+                                  authProvider.updateUser(updatedUser);
+
+                                  if (!context.mounted) return;
+                                  Navigator.pop(context);
+                                  setState(() { _loadUserData(); });
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Profil berhasil diperbarui'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Gagal menyimpan profil'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                          child: const Text(
+                            'Simpan Perubahan',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -309,24 +305,304 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildPasswordField(String label, TextEditingController controller, bool showPassword, VoidCallback toggleShow) {
+  // --- WIDGET INPUT PROFIL ---
+  Widget _buildProfileField(
+    String label, 
+    TextEditingController controller, 
+    {String? Function(String?)? validator, bool isNumber = false}
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFFFFDDCC), fontSize: 12, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFFFFDDCC),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         const SizedBox(height: 6),
-        Container(
-          decoration: BoxDecoration(color: const Color(0xFFE8E8E8), borderRadius: BorderRadius.circular(12)),
-          child: TextField(
-            controller: controller,
-            obscureText: !showPassword,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              suffixIcon: IconButton(
-                icon: Icon(showPassword ? Icons.visibility : Icons.visibility_off, color: Colors.grey, size: 20),
-                onPressed: toggleShow,
+        TextFormField(
+          controller: controller,
+          keyboardType: isNumber ? TextInputType.phone : TextInputType.text,
+          validator: validator,
+          style: const TextStyle(color: Colors.black87),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFFE8E8E8),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            errorStyle: const TextStyle(
+              color: Color(0xFFFF6B35),
+              fontWeight: FontWeight.bold,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- DIALOG UBAH PASSWORD DENGAN VALIDASI ---
+  void _showUbahKataSandiDialog() {
+    _passwordLamaController.clear();
+    _passwordBaruController.clear();
+    _konfirmasiPasswordController.clear();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFFB8724D), Color(0xFF6B3E2E)],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: SingleChildScrollView(
+                    // BUNGKUS DENGAN FORM UNTUK VALIDASI PASSWORD
+                    child: Form(
+                      key: _passwordFormKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () => Navigator.pop(context),
+                                child: const CircleAvatar(
+                                  backgroundColor: Color(0xFFFF6B35),
+                                  radius: 18,
+                                  child: Icon(
+                                    Icons.arrow_back,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                              Image.asset(
+                                'assets/images/logo.png',
+                                height: 40,
+                                errorBuilder: (c, e, s) => const Icon(
+                                  Icons.store,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
+                              ),
+                              const SizedBox(width: 36),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          const CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.white,
+                            child: Icon(
+                              Icons.lock,
+                              size: 50,
+                              color: Color(0xFFB8724D),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(
+                                  Icons.lock,
+                                  color: Color(0xFFB8724D),
+                                  size: 18,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Ubah Kata Sandi',
+                                  style: TextStyle(
+                                    color: Color(0xFFB8724D),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          
+                          // --- VALIDASI PASSWORD LAMA ---
+                          _buildPasswordField(
+                            'Kata Sandi Lama',
+                            _passwordLamaController,
+                            _showPasswordLama,
+                            () => setStateDialog(
+                              () => _showPasswordLama = !_showPasswordLama,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Kata sandi lama wajib diisi';
+                              }
+                              // CATATAN: Pengecekan apakah password lama "benar" atau "salah"
+                              // idealnya dilakukan via API ke server.
+                              // Di sini kita hanya validasi input tidak boleh kosong.
+                              return null;
+                            }
+                          ),
+                          const SizedBox(height: 12),
+                          
+                          // --- VALIDASI PASSWORD BARU (MIN 6 KARAKTER) ---
+                          _buildPasswordField(
+                            'Kata Sandi Baru',
+                            _passwordBaruController,
+                            _showPasswordBaru,
+                            () => setStateDialog(
+                              () => _showPasswordBaru = !_showPasswordBaru,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Kata sandi baru wajib diisi';
+                              }
+                              if (value.length < 6) {
+                                return 'Minimal 6 karakter';
+                              }
+                              return null;
+                            }
+                          ),
+                          const SizedBox(height: 12),
+                          
+                          // --- VALIDASI KONFIRMASI PASSWORD (HARUS SAMA) ---
+                          _buildPasswordField(
+                            'Konfirmasi Kata Sandi Baru',
+                            _konfirmasiPasswordController,
+                            _showKonfirmasiPassword,
+                            () => setStateDialog(
+                              () => _showKonfirmasiPassword =
+                                  !_showKonfirmasiPassword,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Konfirmasi kata sandi wajib diisi';
+                              }
+                              if (value != _passwordBaruController.text) {
+                                return 'Kata sandi tidak cocok';
+                              }
+                              return null;
+                            }
+                          ),
+                          const SizedBox(height: 24),
+                          
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFFF6B35),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                              onPressed: () {
+                                // JALANKAN VALIDASI PASSWORD
+                                if (_passwordFormKey.currentState!.validate()) {
+                                  // Jika valid, tutup dialog & tampilkan pesan sukses
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Kata sandi berhasil diubah'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  
+                                  // Disini kamu bisa panggil API update password jika ada
+                                  // Provider.of<AuthProvider>(context, listen: false).updatePassword(...)
+                                }
+                              },
+                              child: const Text(
+                                'Simpan Perubahan',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // --- WIDGET PASSWORD DENGAN VALIDASI ---
+  Widget _buildPasswordField(
+    String label,
+    TextEditingController controller,
+    bool showPassword,
+    VoidCallback toggleShow,
+    {String? Function(String?)? validator} // Tambahan parameter validator
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFFFFDDCC),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 6),
+        // GANTI KE TextFormField UNTUK ERROR MESSAGE
+        TextFormField(
+          controller: controller,
+          obscureText: !showPassword,
+          validator: validator, // Logic validasi
+          style: const TextStyle(color: Colors.black87),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFFE8E8E8),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            errorStyle: const TextStyle(
+              color: Color(0xFFFF6B35),
+              fontWeight: FontWeight.bold,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                showPassword ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey,
+                size: 20,
+              ),
+              onPressed: toggleShow,
             ),
           ),
         ),
@@ -334,23 +610,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildProfileField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(color: Color(0xFFFFDDCC), fontSize: 12, fontWeight: FontWeight.w500)),
-        const SizedBox(height: 6),
-        Container(
-          decoration: BoxDecoration(color: const Color(0xFFE8E8E8), borderRadius: BorderRadius.circular(12)),
-          child: TextField(
-            controller: controller,
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-          ),
+  Widget _buildMenuButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool isLogout = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        decoration: BoxDecoration(
+          color: isLogout ? const Color(0xFFE53935) : Colors.white,
+          borderRadius: BorderRadius.circular(25),
         ),
-      ],
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isLogout ? Colors.white : const Color(0xFFB8724D),
+              size: 22,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(
+                color: isLogout ? Colors.white : const Color(0xFF3E2723),
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -377,31 +669,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             child: SafeArea(
-              bottom: false, // ← PERBAIKAN: Biarkan gradient sampai bawah
+              bottom: false,
               child: Column(
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100), // ← PERBAIKAN: Extra padding bottom
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
                       child: Column(
                         children: [
                           Image.asset(
                             'assets/images/logo.png',
                             height: 50,
-                            errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 50),
+                            errorBuilder: (c, e, s) => const Icon(
+                              Icons.store,
+                              color: Colors.white,
+                              size: 50,
+                            ),
                           ),
                           const SizedBox(height: 30),
                           const CircleAvatar(
                             radius: 50,
                             backgroundColor: Colors.white,
-                            child: Icon(Icons.person, size: 60, color: Color(0xFFB8724D)),
+                            child: Icon(
+                              Icons.person,
+                              size: 60,
+                              color: Color(0xFFB8724D),
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          
-                          // ← PERBAIKAN: Display user data yang benar
                           if (user != null) ...[
                             Text(
-                              user.username, // ← Nama dari AuthProvider
+                              user.username,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
@@ -411,38 +709,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(height: 4),
                             Text(
                               user.email,
-                              style: const TextStyle(color: Color(0xFFFFDDCC), fontSize: 14),
+                              style: const TextStyle(
+                                color: Color(0xFFFFDDCC),
+                                fontSize: 14,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               user.phone,
-                              style: const TextStyle(color: Color(0xFFFFDDCC), fontSize: 14),
+                              style: const TextStyle(
+                                color: Color(0xFFFFDDCC),
+                                fontSize: 14,
+                              ),
                             ),
                           ] else ...[
                             const Text(
                               'Guest User',
-                              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             const Text(
                               'Silakan login untuk melihat profil',
-                              style: TextStyle(color: Color(0xFFFFDDCC), fontSize: 14),
+                              style: TextStyle(
+                                color: Color(0xFFFFDDCC),
+                                fontSize: 14,
+                              ),
                             ),
                           ],
-                          
                           const SizedBox(height: 30),
-                          _buildMenuButton(icon: Icons.edit, label: 'Ubah Profil', onTap: _showUbahProfilDialog),
+                          _buildMenuButton(
+                            icon: Icons.edit,
+                            label: 'Ubah Profil',
+                            onTap: _showUbahProfilDialog,
+                          ),
                           const SizedBox(height: 12),
-                          _buildMenuButton(icon: Icons.lock, label: 'Ubah Kata Sandi', onTap: _showUbahKataSandiDialog),
+                          _buildMenuButton(
+                            icon: Icons.lock,
+                            label: 'Ubah Kata Sandi',
+                            onTap: _showUbahKataSandiDialog,
+                          ),
                           const SizedBox(height: 12),
-                          _buildMenuButton(icon: Icons.receipt_long, label: 'Pesanan Saya', onTap: () => Navigator.pushNamed(context, '/pesanan')),
+                          _buildMenuButton(
+                            icon: Icons.receipt_long,
+                            label: 'Pesanan Saya',
+                            onTap: () => Navigator.pushNamed(context, '/pesanan'),
+                          ),
                           const SizedBox(height: 12),
-                          _buildMenuButton(icon: Icons.shopping_cart, label: 'Keranjang Saya', onTap: () => Navigator.pushNamed(context, '/cart')),
+                          _buildMenuButton(
+                            icon: Icons.shopping_cart,
+                            label: 'Keranjang Saya',
+                            onTap: () => Navigator.pushNamed(context, '/cart'),
+                          ),
                           const SizedBox(height: 12),
-                          _buildMenuButton(icon: Icons.logout, label: 'Logout', onTap: _handleLogout, isLogout: true),
+                          _buildMenuButton(
+                            icon: Icons.logout,
+                            label: 'Logout',
+                            onTap: _handleLogout,
+                            isLogout: true,
+                          ),
                           const SizedBox(height: 30),
-                          
-                          // Feedback Section
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -454,17 +783,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 const Text(
                                   'Berikan Feedback',
-                                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 12),
                                 Container(
-                                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                   child: TextField(
                                     controller: _feedbackController,
                                     maxLines: 4,
                                     decoration: const InputDecoration(
                                       hintText: 'Isi feedback Anda',
-                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 13,
+                                      ),
                                       border: InputBorder.none,
                                       contentPadding: EdgeInsets.all(12),
                                     ),
@@ -477,18 +816,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: orange,
                                       foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
                                     ),
                                     onPressed: () {
                                       if (_feedbackController.text.isNotEmpty) {
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Terima kasih atas feedback Anda!')),
+                                          const SnackBar(
+                                            content: Text(
+                                              'Terima kasih atas feedback Anda!',
+                                            ),
+                                          ),
                                         );
                                         _feedbackController.clear();
                                       }
                                     },
-                                    child: const Text('Kirim', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    child: const Text(
+                                      'Kirim',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -502,15 +855,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          
-          // BOTTOM NAV
           bottomNavigationBar: Container(
             decoration: const BoxDecoration(
               color: darkBar,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
               child: BottomNavigationBar(
                 backgroundColor: Colors.transparent,
                 selectedItemColor: orange,
@@ -518,9 +871,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 currentIndex: _selectedBottomNavIndex,
                 type: BottomNavigationBarType.fixed,
                 items: const [
-                  BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                  BottomNavigationBarItem(icon: Icon(Icons.people_alt_rounded), label: 'Produk'),
-                  BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Keranjang'),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.people_alt_rounded),
+                    label: 'Produk',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.shopping_cart_outlined),
+                    label: 'Keranjang',
+                  ),
                   BottomNavigationBarItem(
                     icon: CircleAvatar(
                       radius: 14,
@@ -531,8 +893,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
                 onTap: (index) {
-                  if (index == 0) Navigator.pushReplacementNamed(context, '/home');
-                  if (index == 1) Navigator.pushReplacementNamed(context, '/products');
+                  if (index == 0)
+                    Navigator.pushReplacementNamed(context, '/home');
+                  if (index == 1)
+                    Navigator.pushReplacementNamed(context, '/products');
                   if (index == 2) Navigator.pushNamed(context, '/cart');
                 },
               ),
@@ -540,38 +904,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildMenuButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isLogout = false,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        decoration: BoxDecoration(
-          color: isLogout ? const Color(0xFFE53935) : Colors.white,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: isLogout ? Colors.white : const Color(0xFFB8724D), size: 22),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                color: isLogout ? Colors.white : const Color(0xFF3E2723),
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -74,7 +74,6 @@ class AuthProvider with ChangeNotifier {
     return result;
   }
 
-
   // Logout function
   Future<bool> logout() async {
     _isLoading = true;
@@ -94,5 +93,12 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     return success;
+  }
+
+  // Update user data (setelah edit profile)
+  void updateUser(User updatedUser) {
+    _user = updatedUser;
+    notifyListeners();
+    print('✅ AuthProvider: User updated to ${updatedUser.username}');
   }
 }
