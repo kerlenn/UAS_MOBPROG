@@ -159,114 +159,142 @@ class _KeranjangScreenState extends State<KeranjangScreen> {
                       margin: const EdgeInsets.only(bottom: 16),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white, 
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05), 
-                            blurRadius: 5, 
-                            offset: const Offset(0, 2)
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 5,
+                            offset: const Offset(0, 2),
                           )
-                        ]
+                        ],
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Checkbox
+                          // CHECKBOX
                           Checkbox(
                             value: item.isSelected,
                             activeColor: orange,
                             onChanged: (val) => cart.toggleSelection(index, val),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Biar gak makan tempat
                           ),
-                          
-                          // Gambar Produk
+
+                          // GAMBAR PRODUK
                           Container(
-                            width: 70, height: 70,
+                            width: 60,
+                            height: 60,
                             decoration: BoxDecoration(
-                              color: Colors.grey[100], 
-                              borderRadius: BorderRadius.circular(8)
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Image.asset(
-                              item.image, 
-                              fit: BoxFit.contain, 
-                              errorBuilder: (c,e,s)=>const Icon(Icons.image)
+                              item.image,
+                              fit: BoxFit.contain,
+                              errorBuilder: (c, e, s) => const Icon(Icons.image),
                             ),
                           ),
-                          
-                          const SizedBox(width: 12),
-                          
-                          // Info Produk & Edit
+
+                          const SizedBox(width: 10),
+
+                          // INFO PRODUK (Expanded biar menuhin ruang sisa)
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(
+                                  item.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis, // Fix Overflow Teks Panjang
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
                                 
                                 // Tombol Edit Varian Kecil
                                 GestureDetector(
                                   onTap: () => _showEditVariantDialog(context, index, item),
                                   child: Container(
-                                    margin: const EdgeInsets.only(top: 4, bottom: 4),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    margin: const EdgeInsets.symmetric(vertical: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[100], 
-                                      borderRadius: BorderRadius.circular(4)
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text(
-                                          item.variant, 
-                                          style: const TextStyle(fontSize: 11, color: Colors.black87)
+                                        Flexible(
+                                          child: Text(
+                                            item.variant,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(fontSize: 10, color: Colors.black87),
+                                          ),
                                         ),
-                                        const SizedBox(width: 4),
-                                        const Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.black54)
+                                        const SizedBox(width: 2),
+                                        const Icon(Icons.keyboard_arrow_down, size: 12, color: Colors.black54)
                                       ],
                                     ),
                                   ),
                                 ),
 
                                 Text(
-                                  formatCurrency(item.price), 
-                                  style: const TextStyle(color: orange, fontWeight: FontWeight.bold)
+                                  formatCurrency(item.price),
+                                  style: const TextStyle(color: Color(0xFFFF6B35), fontWeight: FontWeight.bold, fontSize: 13),
                                 ),
                               ],
                             ),
                           ),
-                          
-                          // Counter (+ -)
+
+                          // BAGIAN KANAN: HAPUS & COUNTER
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.end, // Rata kanan
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Biar ada jarak atas bawah
                             children: [
-                              // Tombol Hapus Item
+                              
+                              // 1. Tombol Hapus (Silang)
                               InkWell(
                                 onTap: () => cart.removeItem(index),
                                 child: const Padding(
                                   padding: EdgeInsets.all(4.0),
-                                  child: Icon(Icons.close, color: Colors.grey, size: 18),
+                                  child: Icon(Icons.close, color: Colors.grey, size: 20),
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              
+                              const SizedBox(height: 12), // Jarak aman biar gak dempet
+
+                              // 2. Counter (+ Angka -)
                               Container(
+                                height: 32, // Tinggi kita kunci biar gak makin lebar ke bawah
                                 decoration: BoxDecoration(
-                                  color: Colors.grey[100], 
-                                  borderRadius: BorderRadius.circular(8)
+                                  color: Colors.white,
+                                  border: Border.all(color: Colors.grey[300]!), // Border tipis
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Row(
+                                  mainAxisSize: MainAxisSize.min, // PENTING: Biar lebarnya seperlunya aja
                                   children: [
+                                    // Tombol Kurang (-)
                                     InkWell(
-                                      onTap: () => cart.updateQuantity(index, -1), 
+                                      onTap: () => cart.updateQuantity(index, -1),
                                       child: const Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        padding: EdgeInsets.symmetric(horizontal: 8),
                                         child: Text("-", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                      )
+                                      ),
                                     ),
-                                    Text("${item.quantity}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    
+                                    // Angka Jumlah
+                                    Text(
+                                      "${item.quantity}", 
+                                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)
+                                    ),
+                                    
+                                    // Tombol Tambah (+)
                                     InkWell(
-                                      onTap: () => cart.updateQuantity(index, 1), 
+                                      onTap: () => cart.updateQuantity(index, 1),
                                       child: const Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        padding: EdgeInsets.symmetric(horizontal: 8),
                                         child: Text("+", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                      )
+                                      ),
                                     ),
                                   ],
                                 ),
