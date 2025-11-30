@@ -101,4 +101,8 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     print('✅ AuthProvider: User updated to ${updatedUser.username}');
   }
+
+  Future<bool> updatePassword(String newPassword) async {
+    return await _authService.updatePassword(newPassword);
+  }
 }

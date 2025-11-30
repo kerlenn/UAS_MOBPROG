@@ -20,7 +20,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _feedbackController = TextEditingController();
   final TextEditingController _passwordLamaController = TextEditingController();
   final TextEditingController _passwordBaruController = TextEditingController();
-  final TextEditingController _konfirmasiPasswordController = TextEditingController();
+  final TextEditingController _konfirmasiPasswordController =
+      TextEditingController();
 
   bool _showPasswordLama = false;
   bool _showPasswordBaru = false;
@@ -67,7 +68,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: const Text('Konfirmasi Logout'),
           content: const Text('Apakah Anda yakin ingin keluar?'),
           actions: [
@@ -81,7 +84,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () async {
-                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                final authProvider = Provider.of<AuthProvider>(
+                  context,
+                  listen: false,
+                );
                 final success = await authProvider.logout();
 
                 if (!context.mounted) return;
@@ -121,7 +127,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
@@ -147,13 +155,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: const CircleAvatar(
                               backgroundColor: Color(0xFFFF6B35),
                               radius: 18,
-                              child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                              child: Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                             ),
                           ),
                           Image.asset(
                             'assets/images/logo.png',
                             height: 40,
-                            errorBuilder: (c, e, s) => const Icon(Icons.store, color: Colors.white, size: 40),
+                            errorBuilder: (c, e, s) => const Icon(
+                              Icons.store,
+                              color: Colors.white,
+                              size: 40,
+                            ),
                           ),
                           const SizedBox(width: 36),
                         ],
@@ -162,11 +178,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const CircleAvatar(
                         radius: 40,
                         backgroundColor: Colors.white,
-                        child: Icon(Icons.person, size: 50, color: Color(0xFFB8724D)),
+                        child: Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Color(0xFFB8724D),
+                        ),
                       ),
                       const SizedBox(height: 20),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
@@ -174,7 +197,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: const [
-                            Icon(Icons.edit, color: Color(0xFFB8724D), size: 18),
+                            Icon(
+                              Icons.edit,
+                              color: Color(0xFFB8724D),
+                              size: 18,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Ubah Profil',
@@ -188,7 +215,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       _buildProfileField(
                         'Nama',
                         _namaController,
@@ -232,7 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       const SizedBox(height: 24),
-                      
+
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -240,11 +267,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             backgroundColor: const Color(0xFFFF6B35),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
                           ),
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                              final authProvider = Provider.of<AuthProvider>(
+                                context,
+                                listen: false,
+                              );
                               final currentUser = authProvider.user;
 
                               if (currentUser != null) {
@@ -257,18 +289,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 );
 
                                 final authService = AuthService();
-                                final success = await authService.saveUserLocally(updatedUser);
+                                final success = await authService
+                                    .saveUserLocally(updatedUser);
 
                                 if (success) {
                                   authProvider.updateUser(updatedUser);
 
                                   if (!context.mounted) return;
                                   Navigator.pop(context);
-                                  setState(() { _loadUserData(); });
+                                  setState(() {
+                                    _loadUserData();
+                                  });
 
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Profil berhasil diperbarui'),
+                                      content: Text(
+                                        'Profil berhasil diperbarui',
+                                      ),
                                       backgroundColor: Colors.green,
                                     ),
                                   );
@@ -301,10 +338,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileField(
-    String label, 
-    TextEditingController controller, 
-    {String? Function(String?)? validator, bool isNumber = false}
-  ) {
+    String label,
+    TextEditingController controller, {
+    String? Function(String?)? validator,
+    bool isNumber = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -333,7 +371,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Color(0xFFFF6B35),
               fontWeight: FontWeight.bold,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
         ),
       ],
@@ -452,7 +493,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 return 'Kata sandi lama wajib diisi';
                               }
                               return null;
-                            }
+                            },
                           ),
                           const SizedBox(height: 12),
 
@@ -471,7 +512,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 return 'Minimal 6 karakter';
                               }
                               return null;
-                            }
+                            },
                           ),
                           const SizedBox(height: 12),
 
@@ -491,30 +532,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 return 'Kata sandi tidak cocok';
                               }
                               return null;
-                            }
+                            },
                           ),
                           const SizedBox(height: 24),
-                          
+
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFFF6B35),
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(25),
                                 ),
                               ),
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_passwordFormKey.currentState!.validate()) {
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Kata sandi berhasil diubah'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
+                                  await Provider.of<AuthProvider>(
+                                    context,
+                                    listen: false,
+                                  ).updatePassword(_passwordBaruController.text);
+
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Kata sandi berhasil diubah!',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
                                 }
                               },
                               child: const Text(
@@ -540,9 +592,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String label,
     TextEditingController controller,
     bool showPassword,
-    VoidCallback toggleShow,
-    {String? Function(String?)? validator}
-  ) {
+    VoidCallback toggleShow, {
+    String? Function(String?)? validator,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -735,7 +787,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildMenuButton(
                             icon: Icons.receipt_long,
                             label: 'Pesanan Saya',
-                            onTap: () => Navigator.pushNamed(context, '/pesanan'),
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/pesanan'),
                           ),
                           const SizedBox(height: 12),
                           _buildMenuButton(
@@ -805,7 +858,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     onPressed: () {
                                       if (_feedbackController.text.isNotEmpty) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           const SnackBar(
                                             content: Text(
                                               'Terima kasih atas feedback Anda!',

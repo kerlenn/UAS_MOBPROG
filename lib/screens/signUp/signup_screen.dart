@@ -287,7 +287,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Email tidak boleh kosong';
                             }
-                            if (!value.contains('@')) {
+                            if (!value.contains('@') && !value.contains('.')) {
                               return 'Email tidak valid';
                             }
                             return null;
